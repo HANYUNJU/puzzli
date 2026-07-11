@@ -1,0 +1,2071 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>PUZZLI - 일정 보기</title>
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: [
+              'Hanken Grotesk',
+              'Noto Sans KR',
+              'sans-serif'
+            ]
+          },
+
+          colors: {
+            primary: '#4F46E5'
+          },
+
+          boxShadow: {
+            card: '0 12px 30px rgba(15, 23, 42, 0.06)'
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body {
+      font-family:
+        'Hanken Grotesk',
+        'Noto Sans KR',
+        sans-serif;
+    }
+
+    .calendar-day {
+      min-height: 116px;
+      transition: 0.18s ease;
+    }
+
+    .calendar-day:hover {
+      background: #f8fafc;
+    }
+
+    .calendar-day.is-selected {
+      background: #eef2ff;
+      box-shadow: inset 0 0 0 2px #4F46E5;
+    }
+
+    .calendar-day.is-today .day-number {
+      background: #4F46E5;
+      color: #ffffff;
+    }
+
+    .toast {
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, 12px);
+      transition: 0.2s ease;
+    }
+
+    .toast.is-visible {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+  </style>
+</head>
+
+<body class="bg-slate-50 flex h-screen overflow-hidden text-slate-900">
+
+  <!-- 사이드바 -->
+  <aside
+    class="hidden md:flex w-64 shrink-0 bg-white border-r border-slate-200 flex-col h-full"
+  >
+    <!-- 로고 -->
+    <div class="p-6">
+      <div class="flex items-center gap-2">
+
+        <div
+          class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center"
+        >
+          <div class="grid grid-cols-2 gap-0.5">
+            <div class="w-2 h-2 bg-white rounded-sm"></div>
+            <div class="w-2 h-2 bg-white rounded-sm"></div>
+            <div class="w-2 h-2 bg-white rounded-sm"></div>
+            <div class="w-2 h-2 bg-white rounded-sm opacity-50"></div>
+          </div>
+        </div>
+
+        <span
+          class="text-2xl font-bold text-indigo-950 tracking-tight"
+        >
+          PUZZLI
+        </span>
+      </div>
+    </div>
+
+    <!-- 메뉴 -->
+    <nav class="flex-1 px-4 space-y-2 mt-4">
+
+      <a
+        href="index.html"
+        class="flex items-center gap-3 p-3 rounded-xl text-slate-600 hover:bg-slate-100"
+      >
+        <svg
+          class="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+          ></path>
+        </svg>
+
+        <span class="font-medium">
+          대시보드
+        </span>
+      </a>
+
+      <a
+        href="view-schedule.html"
+        class="flex items-center gap-3 p-3 rounded-xl bg-indigo-600 text-white"
+      >
+        <svg
+          class="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+          ></path>
+        </svg>
+
+        <span class="font-medium">
+          일정
+        </span>
+      </a>
+<!-- 팀 -->
+      <a class="flex items-center gap-3 p-3 text-gray-600 hover:bg-gray-100 rounded-lg" href="team.html">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span>팀</span>
+</a>
+
+      <a
+        href="Environment-setting.html"
+        class="flex items-center gap-3 p-3 rounded-xl text-slate-600 hover:bg-slate-100"
+      >
+        <svg
+          class="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+          ></path>
+
+          <path
+            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+          ></path>
+        </svg>
+
+        <span>환경 설정</span>
+      </a>
+    </nav>
+
+    <!-- 사이드바 하단 -->
+    <div class="p-4 mt-auto border-t border-slate-100">
+
+      <button
+        type="button"
+        onclick="window.location.href='create-poll.html'"
+        class="w-full flex items-center justify-center gap-2 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-indigo-700 transition"
+      >
+        <span class="text-xl leading-none">+</span>
+        새 일정 만들기
+      </button>
+
+      <div
+        class="mt-4 pt-4 border-t border-slate-100 space-y-4"
+      >
+        <!-- 고객 센터 -->
+        <a
+  href="customer-center.html"
+  class="flex items-center gap-3 p-3 rounded-xl text-sm font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+>
+  <svg
+    class="w-5 h-5 shrink-0"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+    ></path>
+  </svg>
+
+  <span>고객 센터</span>
+</a>
+
+        <!-- 로그아웃 -->
+  <button
+  id="sidebarLogoutButton"
+  type="button"
+  class="w-full flex items-center gap-3 p-3 rounded-xl text-sm font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+  onclick="showToast('로그아웃 기능은 로그인 연동 후 사용할 수 있습니다.')"
+>
+  <svg
+    class="w-5 h-5 shrink-0"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+    ></path>
+  </svg>
+
+  <span>로그아웃</span>
+</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- 메인 영역 -->
+  <main class="flex-1 flex flex-col h-full min-w-0">
+
+    <!-- 상단 헤더 -->
+    <header
+      class="h-16 shrink-0 bg-white border-b border-slate-200 flex items-center justify-between px-5 md:px-8"
+    >
+      <div>
+        <p class="text-xs font-semibold text-slate-400">
+          일정 관리
+        </p>
+
+        <h1 class="text-lg font-bold text-slate-900">
+          일정 보기
+        </h1>
+      </div>
+
+      <div class="flex items-center gap-4 md:gap-6">
+
+        <!-- 검색 -->
+        <div class="relative hidden sm:block">
+          <input
+            id="meetingSearch"
+            class="bg-slate-100 border-none rounded-full py-2 pl-10 pr-4 text-sm w-64 focus:ring-2 focus:ring-primary/20"
+            placeholder="일정 검색..."
+            type="search"
+          >
+
+          <svg
+            class="w-4 h-4 text-slate-400 absolute left-4 top-2.5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+            ></path>
+          </svg>
+        </div>
+
+       <!-- 알림 -->
+<div
+  id="notificationWrapper"
+  class="relative flex items-center"
+>
+  <button
+  id="notificationButton"
+  type="button"
+  class="relative flex items-center justify-center text-slate-400 hover:text-slate-700 transition-colors"
+  aria-label="알림 열기"
+>
+    <svg
+      class="w-6 h-6"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+      ></path>
+    </svg>
+
+    <!-- 읽지 않은 알림 표시 -->
+    <span
+      id="notificationBadge"
+      class="absolute -right-1.5 -top-1.5 min-w-[18px] h-[18px] rounded-full bg-red-500 px-1 text-[10px] font-bold text-white flex items-center justify-center border-2 border-white"
+    >
+      3
+    </span>
+  </button>
+
+  <!-- 알림 창 -->
+  <div
+    id="notificationPanel"
+    class="hidden absolute right-0 top-11 z-50 w-[360px] max-w-[calc(100vw-32px)] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
+  >
+    <!-- 알림창 제목 -->
+    <div
+      class="flex items-center justify-between border-b border-slate-100 px-5 py-4"
+    >
+      <div>
+        <h3 class="font-bold text-slate-900">
+          알림
+        </h3>
+
+        <p class="mt-0.5 text-xs text-slate-400">
+          새로운 일정과 초대 요청을 확인하세요.
+        </p>
+      </div>
+
+      <button
+        id="markAllReadButton"
+        type="button"
+        class="text-xs font-bold text-primary hover:underline"
+      >
+        모두 읽음
+      </button>
+    </div>
+
+    <!-- 알림 목록 -->
+    <div class="max-h-[420px] overflow-y-auto">
+
+      <!-- 일정 초대 알림 -->
+      <button
+        type="button"
+        data-notification-link="available-time.html"
+        class="notification-item w-full border-b border-slate-100 bg-indigo-50/60 px-5 py-4 text-left hover:bg-indigo-50 transition-colors"
+      >
+        <div class="flex items-start gap-3">
+          <div
+            class="w-10 h-10 shrink-0 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold"
+          >
+            하
+          </div>
+
+          <div class="min-w-0 flex-1">
+            <div class="flex items-start gap-2">
+              <p class="flex-1 text-sm leading-6 text-slate-700">
+                <strong class="text-slate-900">
+                  하동훈 님
+                </strong>이
+                <strong class="text-primary">
+                  기획 회의
+                </strong>
+                일정에 초대했습니다.
+              </p>
+
+              <span
+                class="notification-dot mt-2 w-2 h-2 shrink-0 rounded-full bg-primary"
+              ></span>
+            </div>
+
+            <div class="mt-2 flex items-center justify-between">
+              <span class="text-xs text-slate-400">
+                5분 전
+              </span>
+
+              <span class="text-xs font-bold text-primary">
+                응답하기 →
+              </span>
+            </div>
+          </div>
+        </div>
+      </button>
+
+      <!-- 공동 주최 초대 -->
+      <button
+        type="button"
+        data-notification-link="index.html"
+        class="notification-item w-full border-b border-slate-100 bg-indigo-50/60 px-5 py-4 text-left hover:bg-indigo-50 transition-colors"
+      >
+        <div class="flex items-start gap-3">
+          <div
+            class="w-10 h-10 shrink-0 rounded-full bg-violet-100 text-violet-600 flex items-center justify-center font-bold"
+          >
+            송
+          </div>
+
+          <div class="min-w-0 flex-1">
+            <div class="flex items-start gap-2">
+              <p class="flex-1 text-sm leading-6 text-slate-700">
+                <strong class="text-slate-900">
+                  송지효 님
+                </strong>이
+                <strong class="text-primary">
+                  고객 피드백 분석 회의
+                </strong>의 공동 주최자로 초대했습니다.
+              </p>
+
+              <span
+                class="notification-dot mt-2 w-2 h-2 shrink-0 rounded-full bg-primary"
+              ></span>
+            </div>
+
+            <div class="mt-2 flex items-center justify-between">
+              <span class="text-xs text-slate-400">
+                18분 전
+              </span>
+
+              <span class="text-xs font-bold text-primary">
+                요청 확인 →
+              </span>
+            </div>
+          </div>
+        </div>
+      </button>
+
+      <!-- 일정 확정 알림 -->
+      <button
+        type="button"
+        data-notification-link="view-schedule.html"
+        class="notification-item w-full border-b border-slate-100 bg-indigo-50/60 px-5 py-4 text-left hover:bg-indigo-50 transition-colors"
+      >
+        <div class="flex items-start gap-3">
+          <div
+            class="w-10 h-10 shrink-0 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold"
+          >
+            전
+          </div>
+
+          <div class="min-w-0 flex-1">
+            <div class="flex items-start gap-2">
+              <p class="flex-1 text-sm leading-6 text-slate-700">
+                <strong class="text-slate-900">
+                  전소민 님
+                </strong>이
+                <strong class="text-primary">
+                  디자인 시스템 리뷰
+                </strong>
+                일정을 확정했습니다.
+              </p>
+
+              <span
+                class="notification-dot mt-2 w-2 h-2 shrink-0 rounded-full bg-primary"
+              ></span>
+            </div>
+
+            <div class="mt-2 flex items-center justify-between">
+              <span class="text-xs text-slate-400">
+                1시간 전
+              </span>
+
+              <span class="text-xs font-bold text-primary">
+                일정 보기 →
+              </span>
+            </div>
+          </div>
+        </div>
+      </button>
+
+      <!-- 읽은 알림 -->
+      <button
+        type="button"
+        data-notification-link="current-situation.html"
+        class="notification-item w-full px-5 py-4 text-left hover:bg-slate-50 transition-colors"
+      >
+        <div class="flex items-start gap-3">
+          <div
+            class="w-10 h-10 shrink-0 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center font-bold"
+          >
+            양
+          </div>
+
+          <div class="min-w-0 flex-1">
+            <p class="text-sm leading-6 text-slate-600">
+              <strong class="text-slate-900">
+                양세찬 님
+              </strong>이
+              <strong>
+                PUZZLI 브랜딩 킥오프
+              </strong>의 가능 시간 응답을 완료했습니다.
+            </p>
+
+            <div class="mt-2 flex items-center justify-between">
+              <span class="text-xs text-slate-400">
+                어제
+              </span>
+
+              <span class="text-xs font-bold text-slate-500">
+                현황 보기 →
+              </span>
+            </div>
+          </div>
+        </div>
+      </button>
+    </div>
+
+    <!-- 알림창 아래 -->
+    <div class="border-t border-slate-100 bg-slate-50 p-3">
+      <button
+        type="button"
+        onclick="showToast('전체 알림 페이지는 추후 연결할 수 있습니다.')"
+        class="w-full rounded-xl py-2.5 text-sm font-bold text-slate-600 hover:bg-white transition-colors"
+      >
+        모든 알림 보기
+      </button>
+    </div>
+  </div>
+</div>
+
+        <button
+          type="button"
+          onclick="window.location.href='customer-center.html'"
+          class="text-slate-400 hover:text-slate-700"
+        >
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+            ></path>
+          </svg>
+        </button>
+
+        <div class="relative">
+          <button
+            id="profileButton"
+            type="button"
+            class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 border border-indigo-200 flex items-center justify-center font-bold text-sm"
+          >
+            유
+          </button>
+
+          <div
+            id="profilePanel"
+            class="hidden absolute right-0 top-11 z-40 w-52 rounded-2xl border border-slate-200 bg-white p-3 shadow-xl"
+          >
+            <p class="px-3 py-2 text-sm font-bold">
+              유재석
+            </p>
+
+            <a
+              href="Environment-setting.html"
+              class="block rounded-xl px-3 py-2 text-sm text-slate-600 hover:bg-slate-50"
+            >
+              환경 설정
+            </a>
+
+            <button
+              type="button"
+              class="w-full text-left rounded-xl px-3 py-2 text-sm text-slate-600 hover:bg-slate-50"
+              onclick="showToast('로그아웃 기능은 로그인 연동 후 사용할 수 있습니다.')"
+            >
+              로그아웃
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 페이지 콘텐츠 -->
+    <div class="flex-1 overflow-y-auto p-5 md:p-8">
+
+      <div class="max-w-[1500px] mx-auto">
+
+        <!-- 제목 영역 -->
+        <div
+          class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 mb-7"
+        >
+          <div>
+            <h2 class="text-3xl font-bold tracking-tight">
+              내 일정
+            </h2>
+
+            <p class="mt-2 text-slate-500">
+              생성한 일정과 참여 요청을 한 곳에서 확인하세요.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onclick="window.location.href='create-poll.html'"
+            class="self-start lg:self-auto px-5 py-3 rounded-xl bg-primary text-white font-bold hover:bg-indigo-700 transition"
+          >
+            + 새 일정 만들기
+          </button>
+        </div>
+
+        <!-- 필터 -->
+        <div
+          class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4 mb-5"
+        >
+          <div
+            id="scheduleFilters"
+            class="flex gap-2 overflow-x-auto pb-1"
+          >
+            <button
+              type="button"
+              data-filter="all"
+              class="schedule-filter shrink-0 px-4 py-2 rounded-full bg-primary text-white text-sm font-bold"
+            >
+              전체
+            </button>
+
+            <button
+              type="button"
+              data-filter="organizer"
+              class="schedule-filter shrink-0 px-4 py-2 rounded-full bg-white border border-slate-200 text-slate-500 text-sm font-bold"
+            >
+              내가 만든 일정
+            </button>
+
+            <button
+              type="button"
+              data-filter="respond"
+              class="schedule-filter shrink-0 px-4 py-2 rounded-full bg-white border border-slate-200 text-slate-500 text-sm font-bold"
+            >
+              응답할 일정
+            </button>
+
+            <button
+              type="button"
+              data-filter="confirmed"
+              class="schedule-filter shrink-0 px-4 py-2 rounded-full bg-white border border-slate-200 text-slate-500 text-sm font-bold"
+            >
+              확정된 일정
+            </button>
+          </div>
+
+          <!-- 보기 방식 -->
+          <div class="flex rounded-xl bg-slate-100 p-1 self-start">
+            <button
+              id="monthViewButton"
+              type="button"
+              class="px-4 py-2 rounded-lg bg-white text-primary text-sm font-bold shadow-sm"
+            >
+              월간
+            </button>
+
+            <button
+              id="listViewButton"
+              type="button"
+              class="px-4 py-2 rounded-lg text-slate-500 text-sm font-bold"
+            >
+              목록
+            </button>
+          </div>
+        </div>
+
+        <!-- 월간 보기 -->
+        <div id="monthView">
+
+          <div
+            class="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_330px] gap-6"
+          >
+            <!-- 달력 -->
+            <section
+              class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden"
+            >
+              <!-- 달력 상단 -->
+              <div
+                class="flex items-center justify-between p-5 border-b border-slate-200"
+              >
+                <div class="flex items-center gap-3">
+                  <button
+                    id="previousMonthButton"
+                    type="button"
+                    class="w-10 h-10 rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-50"
+                  >
+                    ‹
+                  </button>
+
+                  <button
+                    id="nextMonthButton"
+                    type="button"
+                    class="w-10 h-10 rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-50"
+                  >
+                    ›
+                  </button>
+
+                  <button
+                    id="todayButton"
+                    type="button"
+                    class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 hover:bg-slate-50"
+                  >
+                    이번 달
+                  </button>
+                </div>
+
+                <h3
+                  id="currentMonthTitle"
+                  class="text-xl font-bold"
+                ></h3>
+              </div>
+
+              <!-- 요일 -->
+              <div
+                class="grid grid-cols-7 border-b border-slate-200 bg-slate-50"
+              >
+                <div class="p-3 text-center text-xs font-bold text-red-400">
+                  일
+                </div>
+
+                <div class="p-3 text-center text-xs font-bold text-slate-400">
+                  월
+                </div>
+
+                <div class="p-3 text-center text-xs font-bold text-slate-400">
+                  화
+                </div>
+
+                <div class="p-3 text-center text-xs font-bold text-slate-400">
+                  수
+                </div>
+
+                <div class="p-3 text-center text-xs font-bold text-slate-400">
+                  목
+                </div>
+
+                <div class="p-3 text-center text-xs font-bold text-slate-400">
+                  금
+                </div>
+
+                <div class="p-3 text-center text-xs font-bold text-blue-400">
+                  토
+                </div>
+              </div>
+
+              <div
+                id="calendarGrid"
+                class="grid grid-cols-7"
+              ></div>
+            </section>
+
+            <!-- 선택 날짜 일정 -->
+            <aside class="space-y-5">
+
+              <section
+                class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm"
+              >
+                <div class="flex items-start justify-between">
+                  <div>
+                    <p class="text-xs font-bold text-primary">
+                      선택한 날짜
+                    </p>
+
+                    <h3
+                      id="selectedDateTitle"
+                      class="mt-1 text-xl font-bold"
+                    ></h3>
+                  </div>
+
+                  <span
+                    id="selectedDateCount"
+                    class="rounded-full bg-indigo-50 px-3 py-1 text-xs font-bold text-primary"
+                  ></span>
+                </div>
+
+                <div
+                  id="selectedDateSchedules"
+                  class="mt-5 space-y-3"
+                ></div>
+              </section>
+
+              <!-- 응답 필요 -->
+              <section
+                class="rounded-2xl border border-amber-100 bg-amber-50 p-5"
+              >
+                <p class="text-xs font-bold text-amber-700">
+                  응답 필요
+                </p>
+
+                <h3 class="mt-2 font-bold text-slate-900">
+                  Q4 기획 회의
+                </h3>
+
+                <p class="mt-1 text-sm text-slate-500">
+                  7월 13일부터 15일까지 가능한 시간을 선택해주세요.
+                </p>
+
+                <button
+                  type="button"
+                  onclick="window.location.href='available-time.html'"
+                  class="mt-4 w-full rounded-xl bg-amber-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-amber-600"
+                >
+                  가능 시간 선택
+                </button>
+              </section>
+            </aside>
+          </div>
+        </div>
+
+        <!-- 목록 보기 -->
+        <div id="listView" class="hidden">
+          <section
+            class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden"
+          >
+            <div
+              class="p-5 border-b border-slate-200"
+            >
+              <h3 class="text-xl font-bold">
+                전체 일정
+              </h3>
+
+              <p class="mt-1 text-sm text-slate-500">
+                예정된 일정을 날짜순으로 확인하세요.
+              </p>
+            </div>
+
+            <div
+              id="scheduleList"
+              class="divide-y divide-slate-100"
+            ></div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 일정 상세 모달 -->
+  <div
+    id="scheduleModal"
+    class="hidden fixed inset-0 z-50 bg-slate-900/40 items-center justify-center p-4"
+  >
+    <div
+      class="w-full max-w-lg rounded-3xl bg-white shadow-2xl overflow-hidden"
+    >
+      <div
+        class="flex items-start justify-between p-6 border-b border-slate-100"
+      >
+        <div>
+          <span
+            id="modalStatus"
+            class="inline-flex px-3 py-1 rounded-full text-xs font-bold"
+          ></span>
+
+          <h2
+            id="modalTitle"
+            class="mt-3 text-2xl font-bold"
+          ></h2>
+        </div>
+
+        <button
+          id="closeScheduleModal"
+          type="button"
+          class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="p-6 space-y-5">
+
+        <div class="grid grid-cols-2 gap-4">
+
+          <div class="rounded-2xl bg-slate-50 p-4">
+            <p class="text-xs font-bold text-slate-400">
+              날짜
+            </p>
+
+            <p
+              id="modalDate"
+              class="mt-1 text-sm font-bold"
+            ></p>
+          </div>
+
+          <div class="rounded-2xl bg-slate-50 p-4">
+            <p class="text-xs font-bold text-slate-400">
+              시간
+            </p>
+
+            <p
+              id="modalTime"
+              class="mt-1 text-sm font-bold"
+            ></p>
+          </div>
+        </div>
+
+        <div>
+          <p class="text-xs font-bold text-slate-400">
+            참석자
+          </p>
+
+          <p
+            id="modalParticipants"
+            class="mt-2 text-sm text-slate-600"
+          ></p>
+        </div>
+
+        <div>
+          <p class="text-xs font-bold text-slate-400">
+            설명
+          </p>
+
+          <p
+            id="modalDescription"
+            class="mt-2 text-sm leading-6 text-slate-600"
+          ></p>
+        </div>
+      </div>
+
+      <div
+        class="flex justify-end gap-3 p-6 border-t border-slate-100"
+      >
+        <button
+          id="secondaryModalButton"
+          type="button"
+          class="px-5 py-3 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50"
+        >
+          닫기
+        </button>
+
+        <button
+          id="primaryModalButton"
+          type="button"
+          class="px-6 py-3 rounded-xl bg-primary text-white font-bold hover:bg-indigo-700"
+        ></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 도움말 모달 -->
+  <div
+    id="helpModal"
+    class="hidden fixed inset-0 z-50 bg-slate-900/40 items-center justify-center p-4"
+  >
+    <div
+      class="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl"
+    >
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-bold">
+          일정 보기 이용 방법
+        </h2>
+
+        <button
+          id="closeHelpModal"
+          type="button"
+          class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="mt-6 space-y-4 text-sm text-slate-600">
+        <p>
+          날짜를 선택하면 해당 날짜의 일정을 오른쪽에서 확인할 수 있습니다.
+        </p>
+
+        <p>
+          일정 제목을 누르면 상세 정보와 가능한 작업이 표시됩니다.
+        </p>
+
+        <p>
+          상단 필터를 이용하면 내가 만든 일정, 응답할 일정, 확정된 일정을 구분할 수 있습니다.
+        </p>
+      </div>
+
+      <button
+        id="helpConfirmButton"
+        type="button"
+        class="mt-6 w-full rounded-xl bg-primary py-3 font-bold text-white hover:bg-indigo-700"
+      >
+        확인
+      </button>
+    </div>
+  </div>
+
+  <!-- 토스트 -->
+  <div
+    id="toast"
+    class="toast fixed bottom-6 left-1/2 z-[60] rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-xl"
+  ></div>
+
+  <script>
+    const schedules = [
+      {
+        id: 1,
+        title: 'PUZZLI 브랜딩 킥오프',
+        date: '2026-07-13',
+        start: '10:00',
+        end: '11:00',
+        type: 'organizer',
+        status: '조율 중',
+        participants: '김철수, 이영희, 박지민 외 5명',
+        description: 'PUZZLI 브랜드 방향성과 주요 작업 일정을 논의합니다.'
+      },
+      {
+        id: 2,
+        title: '디자인 시스템 리뷰',
+        date: '2026-07-14',
+        start: '14:00',
+        end: '15:00',
+        type: 'confirmed',
+        status: '확정',
+        participants: '최수연, 한소희, 김철수',
+        description: '컴포넌트와 디자인 토큰의 적용 결과를 검토합니다.'
+      },
+      {
+        id: 3,
+        title: 'Q4 기획 회의',
+        date: '2026-07-15',
+        start: '11:00',
+        end: '12:00',
+        type: 'respond',
+        status: '응답 필요',
+        participants: '유재석, 정우성, 이광수 외 3명',
+        description: '참석 가능한 시간대를 먼저 선택해야 하는 회의입니다.'
+      },
+      {
+        id: 4,
+        title: '마케팅 캠페인 점검',
+        date: '2026-07-16',
+        start: '16:00',
+        end: '17:00',
+        type: 'organizer',
+        status: '조율 중',
+        participants: '마케팅팀 6명',
+        description: '7월 캠페인 진행 상황과 결과 지표를 점검합니다.'
+      },
+      {
+        id: 5,
+        title: '주간 팀 회고',
+        date: '2026-07-17',
+        start: '13:00',
+        end: '14:00',
+        type: 'confirmed',
+        status: '확정',
+        participants: '제품 디자인팀 5명',
+        description: '이번 주 업무 결과와 개선 사항을 공유합니다.'
+      },
+      {
+        id: 6,
+        title: '제품 개선 회의',
+        date: '2026-07-20',
+        start: '10:30',
+        end: '11:30',
+        type: 'organizer',
+        status: '조율 중',
+        participants: '제품팀 7명',
+        description: '사용성 테스트 결과를 바탕으로 개선 방향을 논의합니다.'
+      },
+      {
+        id: 7,
+        title: '개발 일정 공유',
+        date: '2026-07-22',
+        start: '15:00',
+        end: '16:00',
+        type: 'confirmed',
+        status: '확정',
+        participants: '개발본부 8명',
+        description: '다음 배포 일정과 담당 업무를 공유합니다.'
+      }
+    ];
+
+    let currentYear = 2026;
+    let currentMonth = 6;
+    let selectedDate = '2026-07-13';
+    let activeFilter = 'all';
+    let searchKeyword = '';
+
+    const statusClasses = {
+      '조율 중': {
+        badge: 'bg-indigo-50 text-indigo-600',
+        dot: 'bg-indigo-500'
+      },
+
+      '응답 필요': {
+        badge: 'bg-amber-50 text-amber-700',
+        dot: 'bg-amber-500'
+      },
+
+      '확정': {
+        badge: 'bg-emerald-50 text-emerald-700',
+        dot: 'bg-emerald-500'
+      }
+    };
+
+    function formatDateKey(year, month, day) {
+      return (
+        year +
+        '-' +
+        String(month + 1).padStart(2, '0') +
+        '-' +
+        String(day).padStart(2, '0')
+      );
+    }
+
+    function getFilteredSchedules() {
+      return schedules.filter(function (schedule) {
+        const matchesFilter =
+          activeFilter === 'all' ||
+          schedule.type === activeFilter;
+
+        const matchesSearch =
+          !searchKeyword ||
+          schedule.title
+            .toLowerCase()
+            .includes(searchKeyword);
+
+        return matchesFilter && matchesSearch;
+      });
+    }
+
+    function renderCalendar() {
+      const grid =
+        document.getElementById('calendarGrid');
+
+      const title =
+        document.getElementById('currentMonthTitle');
+
+      title.textContent =
+        currentYear +
+        '년 ' +
+        (currentMonth + 1) +
+        '월';
+
+      grid.innerHTML = '';
+
+      const firstDay =
+        new Date(
+          currentYear,
+          currentMonth,
+          1
+        ).getDay();
+
+      const lastDate =
+        new Date(
+          currentYear,
+          currentMonth + 1,
+          0
+        ).getDate();
+
+      const previousMonthLastDate =
+        new Date(
+          currentYear,
+          currentMonth,
+          0
+        ).getDate();
+
+      const filteredSchedules =
+        getFilteredSchedules();
+
+      for (let index = 0; index < 42; index++) {
+        let day;
+        let cellMonth = currentMonth;
+        let cellYear = currentYear;
+        let otherMonth = false;
+
+        if (index < firstDay) {
+          day =
+            previousMonthLastDate -
+            firstDay +
+            index +
+            1;
+
+          cellMonth = currentMonth - 1;
+          otherMonth = true;
+
+          if (cellMonth < 0) {
+            cellMonth = 11;
+            cellYear -= 1;
+          }
+        } else if (
+          index >=
+          firstDay + lastDate
+        ) {
+          day =
+            index -
+            firstDay -
+            lastDate +
+            1;
+
+          cellMonth = currentMonth + 1;
+          otherMonth = true;
+
+          if (cellMonth > 11) {
+            cellMonth = 0;
+            cellYear += 1;
+          }
+        } else {
+          day =
+            index -
+            firstDay +
+            1;
+        }
+
+        const dateKey =
+          formatDateKey(
+            cellYear,
+            cellMonth,
+            day
+          );
+
+        const daySchedules =
+          filteredSchedules.filter(
+            function (schedule) {
+              return schedule.date === dateKey;
+            }
+          );
+
+        const cell =
+          document.createElement('button');
+
+        cell.type = 'button';
+
+        cell.className =
+          'calendar-day text-left border-r border-b border-slate-100 p-2 overflow-hidden ' +
+          (
+            otherMonth
+              ? 'bg-slate-50 text-slate-300 '
+              : 'bg-white '
+          ) +
+          (
+            dateKey === selectedDate
+              ? 'is-selected '
+              : ''
+          );
+
+        cell.dataset.date = dateKey;
+
+        const todayClass =
+          dateKey === '2026-07-13'
+            ? 'is-today'
+            : '';
+
+        if (todayClass) {
+          cell.classList.add(todayClass);
+        }
+
+        cell.innerHTML = `
+          <span
+            class="day-number inline-flex w-7 h-7 items-center justify-center rounded-full text-xs font-bold"
+          >
+            ${day}
+          </span>
+
+          <div class="mt-1 space-y-1">
+            ${daySchedules.slice(0, 2).map(function (schedule) {
+              const status =
+                statusClasses[schedule.status];
+
+              return `
+                <div
+                  class="schedule-event truncate rounded-lg px-2 py-1 text-[10px] font-bold ${status.badge}"
+                  data-id="${schedule.id}"
+                >
+                  ${schedule.start} ${schedule.title}
+                </div>
+              `;
+            }).join('')}
+
+            ${
+              daySchedules.length > 2
+                ? `
+                  <p class="px-1 text-[10px] font-bold text-slate-400">
+                    +${daySchedules.length - 2}개 더보기
+                  </p>
+                `
+                : ''
+            }
+          </div>
+        `;
+
+        cell.addEventListener(
+          'click',
+          function (event) {
+            const eventElement =
+              event.target.closest(
+                '.schedule-event'
+              );
+
+            if (eventElement) {
+              event.stopPropagation();
+
+              openScheduleModal(
+                Number(
+                  eventElement.dataset.id
+                )
+              );
+
+              return;
+            }
+
+            selectedDate = dateKey;
+
+            renderCalendar();
+            renderSelectedDate();
+          }
+        );
+
+        grid.appendChild(cell);
+      }
+    }
+
+    function renderSelectedDate() {
+      const date =
+        new Date(
+          selectedDate + 'T00:00:00'
+        );
+
+      const dayNames = [
+        '일요일',
+        '월요일',
+        '화요일',
+        '수요일',
+        '목요일',
+        '금요일',
+        '토요일'
+      ];
+
+      document
+        .getElementById(
+          'selectedDateTitle'
+        )
+        .textContent =
+          (date.getMonth() + 1) +
+          '월 ' +
+          date.getDate() +
+          '일 ' +
+          dayNames[date.getDay()];
+
+      const daySchedules =
+        getFilteredSchedules()
+          .filter(function (schedule) {
+            return schedule.date === selectedDate;
+          });
+
+      document
+        .getElementById(
+          'selectedDateCount'
+        )
+        .textContent =
+          daySchedules.length +
+          '개의 일정';
+
+      const container =
+        document.getElementById(
+          'selectedDateSchedules'
+        );
+
+      if (daySchedules.length === 0) {
+        container.innerHTML = `
+          <div
+            class="rounded-xl bg-slate-50 p-5 text-center"
+          >
+            <p class="text-sm font-bold text-slate-500">
+              등록된 일정이 없습니다.
+            </p>
+
+            <button
+              type="button"
+              onclick="window.location.href='create-poll.html'"
+              class="mt-3 text-sm font-bold text-primary"
+            >
+              새 일정 만들기
+            </button>
+          </div>
+        `;
+
+        return;
+      }
+
+      container.innerHTML =
+        daySchedules.map(function (schedule) {
+          const status =
+            statusClasses[schedule.status];
+
+          return `
+            <button
+              type="button"
+              data-id="${schedule.id}"
+              class="selected-date-item w-full rounded-xl border border-slate-200 p-4 text-left hover:border-indigo-200 hover:bg-indigo-50/30 transition"
+            >
+              <div class="flex items-start gap-3">
+                <span
+                  class="mt-1 w-2.5 h-2.5 rounded-full ${status.dot}"
+                ></span>
+
+                <div class="min-w-0 flex-1">
+                  <div
+                    class="flex items-start justify-between gap-2"
+                  >
+                    <p class="font-bold truncate">
+                      ${schedule.title}
+                    </p>
+
+                    <span
+                      class="shrink-0 rounded-full px-2 py-1 text-[10px] font-bold ${status.badge}"
+                    >
+                      ${schedule.status}
+                    </span>
+                  </div>
+
+                  <p class="mt-2 text-sm text-slate-500">
+                    ${schedule.start}–${schedule.end}
+                  </p>
+                </div>
+              </div>
+            </button>
+          `;
+        }).join('');
+
+      document
+        .querySelectorAll(
+          '.selected-date-item'
+        )
+        .forEach(function (button) {
+          button.addEventListener(
+            'click',
+            function () {
+              openScheduleModal(
+                Number(button.dataset.id)
+              );
+            }
+          );
+        });
+    }
+
+    function renderScheduleList() {
+      const list =
+        document.getElementById(
+          'scheduleList'
+        );
+
+      const filtered =
+        getFilteredSchedules()
+          .sort(function (a, b) {
+            return (
+              a.date.localeCompare(b.date) ||
+              a.start.localeCompare(b.start)
+            );
+          });
+
+      if (filtered.length === 0) {
+        list.innerHTML = `
+          <div class="p-10 text-center text-slate-400">
+            조건에 맞는 일정이 없습니다.
+          </div>
+        `;
+
+        return;
+      }
+
+      list.innerHTML =
+        filtered.map(function (schedule) {
+          const date =
+            new Date(
+              schedule.date + 'T00:00:00'
+            );
+
+          const status =
+            statusClasses[schedule.status];
+
+          return `
+            <button
+              type="button"
+              data-id="${schedule.id}"
+              class="schedule-list-item w-full flex flex-col md:flex-row md:items-center gap-4 p-5 text-left hover:bg-slate-50"
+            >
+              <div
+                class="w-16 shrink-0 rounded-xl bg-slate-50 p-3 text-center"
+              >
+                <p class="text-xs font-bold text-slate-400">
+                  ${date.getMonth() + 1}월
+                </p>
+
+                <p class="mt-1 text-2xl font-bold text-primary">
+                  ${date.getDate()}
+                </p>
+              </div>
+
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-2">
+                  <span
+                    class="w-2.5 h-2.5 rounded-full ${status.dot}"
+                  ></span>
+
+                  <h4 class="font-bold truncate">
+                    ${schedule.title}
+                  </h4>
+                </div>
+
+                <p class="mt-2 text-sm text-slate-500">
+                  ${schedule.start}–${schedule.end}
+                  ·
+                  ${schedule.participants}
+                </p>
+              </div>
+
+              <span
+                class="self-start md:self-auto shrink-0 rounded-full px-3 py-1.5 text-xs font-bold ${status.badge}"
+              >
+                ${schedule.status}
+              </span>
+            </button>
+          `;
+        }).join('');
+
+      document
+        .querySelectorAll(
+          '.schedule-list-item'
+        )
+        .forEach(function (button) {
+          button.addEventListener(
+            'click',
+            function () {
+              openScheduleModal(
+                Number(button.dataset.id)
+              );
+            }
+          );
+        });
+    }
+
+    function openScheduleModal(id) {
+      const schedule =
+        schedules.find(function (item) {
+          return item.id === id;
+        });
+
+      if (!schedule) {
+        return;
+      }
+
+      const status =
+        statusClasses[schedule.status];
+
+      const modalStatus =
+        document.getElementById(
+          'modalStatus'
+        );
+
+      modalStatus.textContent =
+        schedule.status;
+
+      modalStatus.className =
+        'inline-flex px-3 py-1 rounded-full text-xs font-bold ' +
+        status.badge;
+
+      document
+        .getElementById('modalTitle')
+        .textContent =
+          schedule.title;
+
+      document
+        .getElementById('modalDate')
+        .textContent =
+          schedule.date.replaceAll('-', '.');
+
+      document
+        .getElementById('modalTime')
+        .textContent =
+          schedule.start +
+          '–' +
+          schedule.end;
+
+      document
+        .getElementById(
+          'modalParticipants'
+        )
+        .textContent =
+          schedule.participants;
+
+      document
+        .getElementById(
+          'modalDescription'
+        )
+        .textContent =
+          schedule.description;
+
+      const primaryButton =
+        document.getElementById(
+          'primaryModalButton'
+        );
+
+      primaryButton.dataset.type =
+        schedule.type;
+
+      if (schedule.type === 'respond') {
+        primaryButton.textContent =
+          '가능 시간 선택';
+      } else if (
+        schedule.type === 'organizer'
+      ) {
+        primaryButton.textContent =
+          '응답 현황 보기';
+      } else {
+        primaryButton.textContent =
+          '확정 일정 확인';
+      }
+
+      const modal =
+        document.getElementById(
+          'scheduleModal'
+        );
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeScheduleModal() {
+      const modal =
+        document.getElementById(
+          'scheduleModal'
+        );
+
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    document
+      .getElementById(
+        'primaryModalButton'
+      )
+      .addEventListener(
+        'click',
+        function () {
+          if (this.dataset.type === 'respond') {
+            window.location.href =
+              'available-time.html';
+
+            return;
+          }
+
+          if (this.dataset.type === 'organizer') {
+            window.location.href =
+              'current-situation.html';
+
+            return;
+          }
+
+          showToast(
+            '이미 확정된 일정입니다.'
+          );
+
+          closeScheduleModal();
+        }
+      );
+
+    document
+      .getElementById(
+        'secondaryModalButton'
+      )
+      .addEventListener(
+        'click',
+        closeScheduleModal
+      );
+
+    document
+      .getElementById(
+        'closeScheduleModal'
+      )
+      .addEventListener(
+        'click',
+        closeScheduleModal
+      );
+
+    document
+      .getElementById(
+        'previousMonthButton'
+      )
+      .addEventListener(
+        'click',
+        function () {
+          currentMonth -= 1;
+
+          if (currentMonth < 0) {
+            currentMonth = 11;
+            currentYear -= 1;
+          }
+
+          renderCalendar();
+        }
+      );
+
+    document
+      .getElementById(
+        'nextMonthButton'
+      )
+      .addEventListener(
+        'click',
+        function () {
+          currentMonth += 1;
+
+          if (currentMonth > 11) {
+            currentMonth = 0;
+            currentYear += 1;
+          }
+
+          renderCalendar();
+        }
+      );
+
+    document
+      .getElementById(
+        'todayButton'
+      )
+      .addEventListener(
+        'click',
+        function () {
+          currentYear = 2026;
+          currentMonth = 6;
+          selectedDate = '2026-07-13';
+
+          renderCalendar();
+          renderSelectedDate();
+        }
+      );
+
+    document
+      .querySelectorAll(
+        '.schedule-filter'
+      )
+      .forEach(function (button) {
+        button.addEventListener(
+          'click',
+          function () {
+            activeFilter =
+              button.dataset.filter;
+
+            document
+              .querySelectorAll(
+                '.schedule-filter'
+              )
+              .forEach(function (item) {
+                item.classList.remove(
+                  'bg-primary',
+                  'text-white'
+                );
+
+                item.classList.add(
+                  'bg-white',
+                  'border',
+                  'border-slate-200',
+                  'text-slate-500'
+                );
+              });
+
+            button.classList.remove(
+              'bg-white',
+              'border',
+              'border-slate-200',
+              'text-slate-500'
+            );
+
+            button.classList.add(
+              'bg-primary',
+              'text-white'
+            );
+
+            renderCalendar();
+            renderSelectedDate();
+            renderScheduleList();
+          }
+        );
+      });
+
+    document
+      .getElementById(
+        'monthViewButton'
+      )
+      .addEventListener(
+        'click',
+        function () {
+          document
+            .getElementById(
+              'monthView'
+            )
+            .classList.remove(
+              'hidden'
+            );
+
+          document
+            .getElementById(
+              'listView'
+            )
+            .classList.add(
+              'hidden'
+            );
+
+          this.classList.add(
+            'bg-white',
+            'text-primary',
+            'shadow-sm'
+          );
+
+          document
+            .getElementById(
+              'listViewButton'
+            )
+            .classList.remove(
+              'bg-white',
+              'text-primary',
+              'shadow-sm'
+            );
+        }
+      );
+
+    document
+      .getElementById(
+        'listViewButton'
+      )
+      .addEventListener(
+        'click',
+        function () {
+          document
+            .getElementById(
+              'listView'
+            )
+            .classList.remove(
+              'hidden'
+            );
+
+          document
+            .getElementById(
+              'monthView'
+            )
+            .classList.add(
+              'hidden'
+            );
+
+          this.classList.add(
+            'bg-white',
+            'text-primary',
+            'shadow-sm'
+          );
+
+          document
+            .getElementById(
+              'monthViewButton'
+            )
+            .classList.remove(
+              'bg-white',
+              'text-primary',
+              'shadow-sm'
+            );
+
+          renderScheduleList();
+        }
+      );
+
+    document
+      .getElementById(
+        'meetingSearch'
+      )
+      .addEventListener(
+        'input',
+        function () {
+          searchKeyword =
+            this.value
+              .trim()
+              .toLowerCase();
+
+          renderCalendar();
+          renderSelectedDate();
+          renderScheduleList();
+        }
+      );
+
+    document
+      .getElementById(
+        'notificationButton'
+      )
+      .addEventListener(
+        'click',
+        function () {
+          document
+            .getElementById(
+              'notificationPanel'
+            )
+            .classList.toggle(
+              'hidden'
+            );
+
+          document
+            .getElementById(
+              'profilePanel'
+            )
+            .classList.add(
+              'hidden'
+            );
+        }
+      );
+
+    document
+      .getElementById(
+        'profileButton'
+      )
+      .addEventListener(
+        'click',
+        function () {
+          document
+            .getElementById(
+              'profilePanel'
+            )
+            .classList.toggle(
+              'hidden'
+            );
+
+          document
+            .getElementById(
+              'notificationPanel'
+            )
+            .classList.add(
+              'hidden'
+            );
+        }
+      );
+
+    function openHelpModal() {
+      const modal =
+        document.getElementById(
+          'helpModal'
+        );
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeHelpModal() {
+      const modal =
+        document.getElementById(
+          'helpModal'
+        );
+
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    document
+      .querySelectorAll(
+        '.help-open'
+      )
+      .forEach(function (button) {
+        button.addEventListener(
+          'click',
+          openHelpModal
+        );
+      });
+
+    document
+      .getElementById(
+        'closeHelpModal'
+      )
+      .addEventListener(
+        'click',
+        closeHelpModal
+      );
+
+    document
+      .getElementById(
+        'helpConfirmButton'
+      )
+      .addEventListener(
+        'click',
+        closeHelpModal
+      );
+
+    document
+      .getElementById(
+        'logoutButton'
+      )
+      .addEventListener(
+        'click',
+        function () {
+          showToast(
+            '로그아웃 기능은 로그인 연동 후 사용할 수 있습니다.'
+          );
+        }
+      );
+
+    function showToast(message) {
+      const toast =
+        document.getElementById(
+          'toast'
+        );
+
+      toast.textContent = message;
+      toast.classList.add(
+        'is-visible'
+      );
+
+      clearTimeout(
+        window.toastTimer
+      );
+
+      window.toastTimer =
+        setTimeout(
+          function () {
+            toast.classList.remove(
+              'is-visible'
+            );
+          },
+          1800
+        );
+    }
+
+    document
+      .getElementById(
+        'scheduleModal'
+      )
+      .addEventListener(
+        'click',
+        function (event) {
+          if (event.target === this) {
+            closeScheduleModal();
+          }
+        }
+      );
+
+    document
+      .getElementById(
+        'helpModal'
+      )
+      .addEventListener(
+        'click',
+        function (event) {
+          if (event.target === this) {
+            closeHelpModal();
+          }
+        }
+      );
+
+    renderCalendar();
+    renderSelectedDate();
+    renderScheduleList();
+  </script>
+</body>
+</html>

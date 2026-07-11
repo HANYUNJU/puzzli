@@ -1,0 +1,2019 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>PUZZLI - 가능한 시간 선택</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+  <!-- 폰트 -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: [
+              'Hanken Grotesk',
+              'Noto Sans KR',
+              'sans-serif'
+            ]
+          },
+
+          colors: {
+            primary: '#4F46E5'
+          },
+
+          boxShadow: {
+            card: '0 12px 30px rgba(15, 23, 42, 0.06)'
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body {
+      font-family:
+        'Hanken Grotesk',
+        'Noto Sans KR',
+        sans-serif;
+    }
+
+    .slot-button {
+      min-height: 62px;
+      transition: 0.18s ease;
+    }
+
+    /* 선택 안 된 상태 */
+    .slot-button[data-state="none"] {
+      background: #ffffff;
+      border: 1px dashed #cbd5e1;
+      color: #94a3b8;
+    }
+
+    .slot-button[data-state="none"]:hover {
+      background: #eef2ff;
+      border-color: #4F46E5;
+      color: #4F46E5;
+    }
+
+    /* 가능한 시간 */
+    .slot-button[data-state="available"] {
+      background: #eef2ff;
+      border: 1px solid #a5b4fc;
+      color: #4338ca;
+    }
+
+    /* 선호하는 시간 */
+    .slot-button[data-state="preferred"] {
+      background: #4F46E5;
+      border: 1px solid #4F46E5;
+      color: #ffffff;
+      box-shadow:
+        0 8px 18px rgba(79, 70, 229, 0.22);
+    }
+
+    /* 선택 불가 */
+    .slot-button:disabled {
+      cursor: not-allowed;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      color: #94a3b8;
+      opacity: 0.75;
+    }
+
+    /* 토스트 */
+    .toast {
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, 12px);
+      transition: 0.2s ease;
+    }
+
+    .toast.is-visible {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+  </style>
+</head>
+
+<body class="bg-slate-50 flex h-screen overflow-hidden text-slate-900">
+
+  <!-- =========================
+       왼쪽 사이드바
+  ========================== -->
+  <aside
+    class="hidden md:flex w-64 shrink-0 bg-white border-r border-slate-200 flex-col h-full"
+  >
+    <!-- 로고 -->
+    <div class="p-6">
+      <div class="flex items-center gap-2">
+
+        <div
+          class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center"
+        >
+          <div class="grid grid-cols-2 gap-0.5">
+            <div class="w-2 h-2 bg-white rounded-sm"></div>
+            <div class="w-2 h-2 bg-white rounded-sm"></div>
+            <div class="w-2 h-2 bg-white rounded-sm"></div>
+
+            <div
+              class="w-2 h-2 bg-white rounded-sm opacity-50"
+            ></div>
+          </div>
+        </div>
+
+        <span
+          class="text-2xl font-bold text-indigo-950 tracking-tight"
+        >
+          PUZZLI
+        </span>
+      </div>
+    </div>
+
+    <!-- 메뉴 -->
+    <nav class="flex-1 px-4 space-y-2 mt-4">
+
+      <a
+        href="index.html"
+        class="flex items-center gap-3 p-3 rounded-xl bg-indigo-600 text-white"
+      >
+        <svg
+          class="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+          ></path>
+        </svg>
+
+        <span class="font-medium">
+          대시보드
+        </span>
+      </a>
+
+      <a
+        href="view-schedule.html"
+        class="flex items-center gap-3 p-3 rounded-xl text-slate-600 hover:bg-slate-100"
+      >
+        <svg
+          class="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+          ></path>
+        </svg>
+
+        <span>일정</span>
+      </a>
+
+      <a
+        href="team.html"
+        class="flex items-center gap-3 p-3 rounded-xl text-slate-600 hover:bg-slate-100"
+      >
+        <svg
+          class="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M15 7a3 3 0 11-6 0 3 3 0 016 0z"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+          ></path>
+        </svg>
+
+        <span>팀</span>
+      </a>
+
+      <a
+        href="Environment-setting.html"
+        class="flex items-center gap-3 p-3 rounded-xl text-slate-600 hover:bg-slate-100"
+      >
+        <svg
+          class="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+          ></path>
+
+          <path
+            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+          ></path>
+        </svg>
+
+        <span>환경 설정</span>
+      </a>
+    </nav>
+
+    <!-- 하단 -->
+    <div class="p-4 mt-auto border-t border-slate-100">
+
+      <button
+        type="button"
+        onclick="window.location.href='create-poll.html'"
+        class="w-full flex items-center justify-center gap-2 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-indigo-700 transition"
+      >
+        <span class="text-xl leading-none">+</span>
+        새 일정 만들기
+      </button>
+
+      <div
+        class="mt-4 pt-4 border-t border-slate-100 space-y-4"
+      >
+        <a
+  href="customer-center.html"
+  class="flex items-center gap-3 p-3 rounded-xl text-sm font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+>
+  <svg
+    class="w-5 h-5 shrink-0"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+    ></path>
+  </svg>
+
+  <span>고객 센터</span>
+</a>
+
+        <!-- 로그아웃 -->
+  <button
+  id="sidebarLogoutButton"
+  type="button"
+  class="w-full flex items-center gap-3 p-3 rounded-xl text-sm font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+  onclick="showToast('로그아웃 기능은 로그인 연동 후 사용할 수 있습니다.')"
+>
+  <svg
+    class="w-5 h-5 shrink-0"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+    ></path>
+  </svg>
+
+  <span>로그아웃</span>
+</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- =========================
+       메인 영역
+  ========================== -->
+  <main
+    class="flex-1 flex flex-col h-full min-w-0 bg-slate-50"
+  >
+
+    <!-- 상단 헤더 -->
+    <header
+      class="h-16 shrink-0 bg-white border-b border-slate-200 flex items-center justify-between px-5 md:px-8"
+    >
+      <div>
+        <p class="text-xs font-semibold text-slate-400">
+          일정 응답
+        </p>
+
+        <h1 class="text-lg font-bold text-slate-900">
+          가능한 시간 선택
+        </h1>
+      </div>
+
+      <div class="flex items-center gap-4 md:gap-6">
+
+        <!-- 검색 -->
+        <div class="relative hidden sm:block">
+          <input
+            id="meetingSearch"
+            class="bg-slate-100 border-none rounded-full py-2 pl-10 pr-4 text-sm w-64 focus:ring-2 focus:ring-primary/20"
+            placeholder="회의 검색..."
+            type="search"
+          >
+
+          <svg
+            class="w-4 h-4 text-slate-400 absolute left-4 top-2.5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+            ></path>
+          </svg>
+        </div>
+
+        <!-- 알림 -->
+<div
+  id="notificationWrapper"
+  class="relative flex items-center"
+>
+  <button
+  id="notificationButton"
+  type="button"
+  class="relative flex items-center justify-center text-slate-400 hover:text-slate-700 transition-colors"
+  aria-label="알림 열기"
+>
+    <svg
+      class="w-6 h-6"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+      ></path>
+    </svg>
+
+    <!-- 읽지 않은 알림 표시 -->
+    <span
+      id="notificationBadge"
+      class="absolute -right-1.5 -top-1.5 min-w-[18px] h-[18px] rounded-full bg-red-500 px-1 text-[10px] font-bold text-white flex items-center justify-center border-2 border-white"
+    >
+      3
+    </span>
+  </button>
+
+  <!-- 알림 창 -->
+  <div
+    id="notificationPanel"
+    class="hidden absolute right-0 top-11 z-50 w-[360px] max-w-[calc(100vw-32px)] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
+  >
+    <!-- 알림창 제목 -->
+    <div
+      class="flex items-center justify-between border-b border-slate-100 px-5 py-4"
+    >
+      <div>
+        <h3 class="font-bold text-slate-900">
+          알림
+        </h3>
+
+        <p class="mt-0.5 text-xs text-slate-400">
+          새로운 일정과 초대 요청을 확인하세요.
+        </p>
+      </div>
+
+      <button
+        id="markAllReadButton"
+        type="button"
+        class="text-xs font-bold text-primary hover:underline"
+      >
+        모두 읽음
+      </button>
+    </div>
+
+    <!-- 알림 목록 -->
+    <div class="max-h-[420px] overflow-y-auto">
+
+      <!-- 일정 초대 알림 -->
+      <button
+        type="button"
+        data-notification-link="available-time.html"
+        class="notification-item w-full border-b border-slate-100 bg-indigo-50/60 px-5 py-4 text-left hover:bg-indigo-50 transition-colors"
+      >
+        <div class="flex items-start gap-3">
+          <div
+            class="w-10 h-10 shrink-0 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold"
+          >
+            하
+          </div>
+
+          <div class="min-w-0 flex-1">
+            <div class="flex items-start gap-2">
+              <p class="flex-1 text-sm leading-6 text-slate-700">
+                <strong class="text-slate-900">
+                  하동훈 님
+                </strong>이
+                <strong class="text-primary">
+                  기획 회의
+                </strong>
+                일정에 초대했습니다.
+              </p>
+
+              <span
+                class="notification-dot mt-2 w-2 h-2 shrink-0 rounded-full bg-primary"
+              ></span>
+            </div>
+
+            <div class="mt-2 flex items-center justify-between">
+              <span class="text-xs text-slate-400">
+                5분 전
+              </span>
+
+              <span class="text-xs font-bold text-primary">
+                응답하기 →
+              </span>
+            </div>
+          </div>
+        </div>
+      </button>
+
+      <!-- 공동 주최 초대 -->
+      <button
+        type="button"
+        data-notification-link="index.html"
+        class="notification-item w-full border-b border-slate-100 bg-indigo-50/60 px-5 py-4 text-left hover:bg-indigo-50 transition-colors"
+      >
+        <div class="flex items-start gap-3">
+          <div
+            class="w-10 h-10 shrink-0 rounded-full bg-violet-100 text-violet-600 flex items-center justify-center font-bold"
+          >
+            송
+          </div>
+
+          <div class="min-w-0 flex-1">
+            <div class="flex items-start gap-2">
+              <p class="flex-1 text-sm leading-6 text-slate-700">
+                <strong class="text-slate-900">
+                  송지효 님
+                </strong>이
+                <strong class="text-primary">
+                  고객 피드백 분석 회의
+                </strong>의 공동 주최자로 초대했습니다.
+              </p>
+
+              <span
+                class="notification-dot mt-2 w-2 h-2 shrink-0 rounded-full bg-primary"
+              ></span>
+            </div>
+
+            <div class="mt-2 flex items-center justify-between">
+              <span class="text-xs text-slate-400">
+                18분 전
+              </span>
+
+              <span class="text-xs font-bold text-primary">
+                요청 확인 →
+              </span>
+            </div>
+          </div>
+        </div>
+      </button>
+
+      <!-- 일정 확정 알림 -->
+      <button
+        type="button"
+        data-notification-link="view-schedule.html"
+        class="notification-item w-full border-b border-slate-100 bg-indigo-50/60 px-5 py-4 text-left hover:bg-indigo-50 transition-colors"
+      >
+        <div class="flex items-start gap-3">
+          <div
+            class="w-10 h-10 shrink-0 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold"
+          >
+            전
+          </div>
+
+          <div class="min-w-0 flex-1">
+            <div class="flex items-start gap-2">
+              <p class="flex-1 text-sm leading-6 text-slate-700">
+                <strong class="text-slate-900">
+                  전소민 님
+                </strong>이
+                <strong class="text-primary">
+                  디자인 시스템 리뷰
+                </strong>
+                일정을 확정했습니다.
+              </p>
+
+              <span
+                class="notification-dot mt-2 w-2 h-2 shrink-0 rounded-full bg-primary"
+              ></span>
+            </div>
+
+            <div class="mt-2 flex items-center justify-between">
+              <span class="text-xs text-slate-400">
+                1시간 전
+              </span>
+
+              <span class="text-xs font-bold text-primary">
+                일정 보기 →
+              </span>
+            </div>
+          </div>
+        </div>
+      </button>
+
+      <!-- 읽은 알림 -->
+      <button
+        type="button"
+        data-notification-link="current-situation.html"
+        class="notification-item w-full px-5 py-4 text-left hover:bg-slate-50 transition-colors"
+      >
+        <div class="flex items-start gap-3">
+          <div
+            class="w-10 h-10 shrink-0 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center font-bold"
+          >
+            양
+          </div>
+
+          <div class="min-w-0 flex-1">
+            <p class="text-sm leading-6 text-slate-600">
+              <strong class="text-slate-900">
+                양세찬 님
+              </strong>이
+              <strong>
+                PUZZLI 브랜딩 킥오프
+              </strong>의 가능 시간 응답을 완료했습니다.
+            </p>
+
+            <div class="mt-2 flex items-center justify-between">
+              <span class="text-xs text-slate-400">
+                어제
+              </span>
+
+              <span class="text-xs font-bold text-slate-500">
+                현황 보기 →
+              </span>
+            </div>
+          </div>
+        </div>
+      </button>
+    </div>
+
+    <!-- 알림창 아래 -->
+    <div class="border-t border-slate-100 bg-slate-50 p-3">
+      <button
+        type="button"
+        onclick="showToast('전체 알림 페이지는 추후 연결할 수 있습니다.')"
+        class="w-full rounded-xl py-2.5 text-sm font-bold text-slate-600 hover:bg-white transition-colors"
+      >
+        모든 알림 보기
+      </button>
+    </div>
+  </div>
+</div>
+
+        <button
+          type="button"
+          onclick="window.location.href='customer-center.html'"
+          class="text-slate-400 hover:text-slate-700"
+        >
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+            ></path>
+          </svg>
+        </button>
+
+        <div class="relative">
+          <button
+            id="profileButton"
+            type="button"
+            class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 border border-indigo-200 flex items-center justify-center font-bold text-sm"
+          >
+            유
+          </button>
+
+          <div
+            id="profilePanel"
+            class="hidden absolute right-0 top-11 z-40 w-52 rounded-2xl border border-slate-200 bg-white p-3 shadow-xl"
+          >
+            <p class="px-3 py-2 text-sm font-bold">
+              유재석
+            </p>
+
+            <a
+              href="Environment-setting.html"
+              class="block rounded-xl px-3 py-2 text-sm text-slate-600 hover:bg-slate-50"
+            >
+              환경 설정
+            </a>
+
+            <button
+              type="button"
+              class="w-full text-left rounded-xl px-3 py-2 text-sm text-slate-600 hover:bg-slate-50"
+              onclick="showToast('로그아웃 기능은 로그인 연동 후 사용할 수 있습니다.')"
+            >
+              로그아웃
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 페이지 내용 -->
+    <div class="flex-1 overflow-y-auto p-5 md:p-8">
+
+      <div
+        class="max-w-[1380px] mx-auto grid grid-cols-1 xl:grid-cols-[330px_minmax(0,1fr)] gap-6"
+      >
+
+        <!-- =========================
+             왼쪽 회의 정보
+        ========================== -->
+        <aside class="space-y-5">
+
+          <!-- 회의 정보 -->
+          <section
+            class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm"
+          >
+            <span
+              class="inline-flex px-3 py-1 rounded-full bg-amber-50 text-amber-700 text-xs font-bold"
+            >
+              응답 필요
+            </span>
+
+            <h2
+              class="mt-4 text-2xl font-bold text-slate-900"
+            >
+              Q4 기획 회의
+            </h2>
+
+            <p class="mt-2 text-sm text-slate-500">
+              참여 가능한 시간대를 선택해주세요.
+            </p>
+
+            <div
+              class="mt-6 pt-6 border-t border-slate-100 space-y-3 text-sm text-slate-600"
+            >
+              <div class="flex items-center gap-3">
+                <span class="text-primary">◷</span>
+                <span>회의 시간 1시간</span>
+              </div>
+
+              <div class="flex items-center gap-3">
+                <span class="text-primary">▣</span>
+                <span>2026년 7월 13일–15일</span>
+              </div>
+
+              <div class="flex items-center gap-3">
+                <span class="text-primary">●</span>
+                <span>참여자 4명</span>
+              </div>
+            </div>
+
+            <div class="mt-5 flex -space-x-2">
+              <div
+                class="w-10 h-10 rounded-full border-2 border-white bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold"
+              >
+                김
+              </div>
+
+              <div
+                class="w-10 h-10 rounded-full border-2 border-white bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold"
+              >
+                이
+              </div>
+
+              <div
+                class="w-10 h-10 rounded-full border-2 border-white bg-amber-100 text-amber-600 flex items-center justify-center font-bold"
+              >
+                박
+              </div>
+
+              <div
+                class="w-10 h-10 rounded-full border-2 border-white bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold"
+              >
+                +1
+              </div>
+            </div>
+          </section>
+
+          <!-- 내 정보 -->
+          <section
+            class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm"
+          >
+            <h3 class="text-lg font-bold text-slate-900">
+              내 정보 입력
+            </h3>
+
+            <p class="mt-1 text-sm text-slate-500">
+              응답자 확인을 위해 정보를 입력해주세요.
+            </p>
+
+            <div class="mt-5 space-y-4">
+
+              <!-- 이름 -->
+              <div>
+                <label
+                  for="participantName"
+                  class="block mb-2 text-sm font-bold text-slate-700"
+                >
+                  이름
+                </label>
+
+                <input
+                  id="participantName"
+                  class="w-full rounded-xl border-slate-200 focus:border-primary focus:ring-primary/20"
+                  type="text"
+                  placeholder="이름을 입력하세요"
+                >
+
+                <p
+                  id="nameError"
+                  class="hidden mt-1 text-xs font-semibold text-red-500"
+                >
+                  이름을 입력해주세요.
+                </p>
+              </div>
+
+              <!-- 이메일 -->
+              <div>
+                <label
+                  for="participantEmail"
+                  class="block mb-2 text-sm font-bold text-slate-700"
+                >
+                  이메일
+                </label>
+
+                <input
+                  id="participantEmail"
+                  class="w-full rounded-xl border-slate-200 focus:border-primary focus:ring-primary/20"
+                  type="email"
+                  placeholder="example@puzzli.com"
+                >
+
+                <p
+                  id="emailError"
+                  class="hidden mt-1 text-xs font-semibold text-red-500"
+                >
+                  올바른 이메일을 입력해주세요.
+                </p>
+              </div>
+
+              <!-- 이동 시간 -->
+              <label
+                class="flex items-center gap-3 rounded-xl bg-slate-50 p-4 cursor-pointer"
+              >
+                <input
+                  id="travelToggle"
+                  class="w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary"
+                  type="checkbox"
+                >
+
+                <span class="text-sm font-semibold text-slate-700">
+                  이동 시간 자동 계산
+                </span>
+              </label>
+
+              <!-- 이동 시간 추가 옵션 -->
+              <div
+                id="travelOptions"
+                class="hidden rounded-xl border border-indigo-100 bg-indigo-50 p-4 space-y-4"
+              >
+                <div>
+                  <label
+                    for="departureLocation"
+                    class="block mb-2 text-xs font-bold text-slate-600"
+                  >
+                    출발 위치
+                  </label>
+
+                  <input
+                    id="departureLocation"
+                    type="text"
+                    placeholder="예: 회사"
+                    class="w-full rounded-lg border-indigo-100 text-sm focus:border-primary focus:ring-primary/20"
+                  >
+                </div>
+
+                <div>
+                  <label
+                    for="travelMinutes"
+                    class="block mb-2 text-xs font-bold text-slate-600"
+                  >
+                    필요한 이동 시간
+                  </label>
+
+                  <select
+                    id="travelMinutes"
+                    class="w-full rounded-lg border-indigo-100 text-sm focus:border-primary focus:ring-primary/20"
+                  >
+                    <option value="15">15분</option>
+                    <option value="30" selected>30분</option>
+                    <option value="45">45분</option>
+                    <option value="60">1시간</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </section>
+        </aside>
+
+        <!-- =========================
+             오른쪽 시간표
+        ========================== -->
+        <section
+          class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden"
+        >
+
+          <!-- 시간표 상단 -->
+          <div
+            class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 p-5 border-b border-slate-200"
+          >
+            <div>
+              <h2 class="text-xl font-bold text-slate-900">
+                가능한 시간 선택
+              </h2>
+
+              <p class="mt-1 text-sm text-slate-500">
+                한 번 클릭하면 가능, 두 번 클릭하면 선호 시간으로 표시됩니다.
+              </p>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <span
+                id="selectionCount"
+                class="text-sm font-bold text-primary"
+              >
+                선택 0개
+              </span>
+
+              <button
+                id="clearSelectionButton"
+                type="button"
+                class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 hover:bg-slate-50"
+              >
+                선택 초기화
+              </button>
+            </div>
+          </div>
+
+          <!-- 범례 -->
+          <div
+            class="flex flex-wrap gap-5 px-5 py-4 bg-slate-50 border-b border-slate-200"
+          >
+            <div class="flex items-center gap-2">
+              <span
+                class="w-3 h-3 rounded-full bg-indigo-100 border border-indigo-300"
+              ></span>
+
+              <span class="text-xs font-bold text-slate-500">
+                가능
+              </span>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <span
+                class="w-3 h-3 rounded-full bg-primary"
+              ></span>
+
+              <span class="text-xs font-bold text-slate-500">
+                선호
+              </span>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <span
+                class="w-3 h-3 rounded-full bg-slate-200"
+              ></span>
+
+              <span class="text-xs font-bold text-slate-500">
+                선택 불가
+              </span>
+            </div>
+          </div>
+
+          <!-- 시간표 -->
+          <div class="overflow-x-auto">
+            <div class="min-w-[700px]">
+
+              <!-- 날짜 헤더 -->
+              <div
+                class="grid grid-cols-4 border-b border-slate-200 bg-slate-50"
+              >
+                <div
+                  class="p-4 border-r border-slate-200"
+                ></div>
+
+                <div
+                  class="p-4 text-center border-r border-slate-200"
+                >
+                  <p class="text-xs font-bold text-slate-400">
+                    7월 13일
+                  </p>
+
+                  <p class="mt-1 font-bold text-primary">
+                    월요일
+                  </p>
+                </div>
+
+                <div
+                  class="p-4 text-center border-r border-slate-200"
+                >
+                  <p class="text-xs font-bold text-slate-400">
+                    7월 14일
+                  </p>
+
+                  <p class="mt-1 font-bold text-primary">
+                    화요일
+                  </p>
+                </div>
+
+                <div class="p-4 text-center">
+                  <p class="text-xs font-bold text-slate-400">
+                    7월 15일
+                  </p>
+
+                  <p class="mt-1 font-bold text-primary">
+                    수요일
+                  </p>
+                </div>
+              </div>
+
+              <!-- 자바스크립트로 시간표 생성 -->
+              <div id="timeGrid"></div>
+            </div>
+          </div>
+
+          <!-- 하단 버튼 -->
+          <div
+            class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-5 border-t border-slate-200"
+          >
+            <button
+              id="cancelButton"
+              type="button"
+              class="px-6 py-3 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50"
+            >
+              취소
+            </button>
+
+            <button
+              id="submitVoteButton"
+              type="button"
+              class="px-8 py-3 rounded-xl bg-primary text-white font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-100"
+            >
+              투표 제출하기
+            </button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <!-- =========================
+       제출 확인 모달
+  ========================== -->
+  <div
+    id="submitModal"
+    class="hidden fixed inset-0 z-50 bg-slate-900/40 items-center justify-center p-4"
+  >
+    <div
+      class="w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden"
+    >
+      <div
+        class="flex items-center justify-between p-6 border-b border-slate-100"
+      >
+        <div>
+          <p class="text-xs font-bold text-primary">
+            응답 확인
+          </p>
+
+          <h2 class="mt-1 text-xl font-bold text-slate-900">
+            선택한 시간을 제출할까요?
+          </h2>
+        </div>
+
+        <button
+          id="closeSubmitModal"
+          type="button"
+          class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="p-6">
+        <div
+          id="submissionSummary"
+          class="max-h-64 overflow-y-auto space-y-2 rounded-2xl bg-slate-50 p-4"
+        ></div>
+      </div>
+
+      <div
+        class="flex justify-end gap-3 p-6 border-t border-slate-100"
+      >
+        <button
+          id="editSelectionButton"
+          type="button"
+          class="px-5 py-3 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50"
+        >
+          다시 선택
+        </button>
+
+        <button
+          id="confirmSubmitButton"
+          type="button"
+          class="px-6 py-3 rounded-xl bg-primary text-white font-bold hover:bg-indigo-700"
+        >
+          제출하기
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================
+       도움말 모달
+  ========================== -->
+  <div
+    id="helpModal"
+    class="hidden fixed inset-0 z-50 bg-slate-900/40 items-center justify-center p-4"
+  >
+    <div
+      class="w-full max-w-md bg-white rounded-3xl shadow-2xl p-6"
+    >
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-bold text-slate-900">
+          가능한 시간 선택 방법
+        </h2>
+
+        <button
+          id="closeHelpModal"
+          type="button"
+          class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="mt-6 space-y-4 text-sm text-slate-600">
+        <p>
+          시간 칸을 한 번 누르면
+          <strong class="text-indigo-600">가능</strong>
+          으로 선택됩니다.
+        </p>
+
+        <p>
+          같은 칸을 두 번 누르면
+          <strong class="text-primary">선호</strong>
+          시간으로 바뀝니다.
+        </p>
+
+        <p>
+          한 번 더 누르면 선택이 해제됩니다.
+        </p>
+
+        <p>
+          회색으로 표시된 시간은 개인 일정 때문에 선택할 수 없습니다.
+        </p>
+      </div>
+
+      <button
+        id="helpConfirmButton"
+        type="button"
+        class="mt-6 w-full py-3 rounded-xl bg-primary text-white font-bold hover:bg-indigo-700"
+      >
+        확인
+      </button>
+    </div>
+  </div>
+
+  <!-- 토스트 메시지 -->
+  <div
+    id="toast"
+    class="toast fixed bottom-6 left-1/2 z-[60] bg-slate-900 text-white px-4 py-3 rounded-xl text-sm font-semibold shadow-xl"
+  ></div>
+
+  <script>
+    /* =========================
+       시간표 기본 데이터
+    ========================== */
+
+    const dates = [
+      {
+        key: '2026-07-13',
+        label: '7월 13일 월요일'
+      },
+      {
+        key: '2026-07-14',
+        label: '7월 14일 화요일'
+      },
+      {
+        key: '2026-07-15',
+        label: '7월 15일 수요일'
+      }
+    ];
+
+    const times = [
+      '09:00',
+      '10:00',
+      '11:00',
+      '12:00',
+      '13:00',
+      '14:00',
+      '15:00',
+      '16:00',
+      '17:00'
+    ];
+
+    /* 선택할 수 없는 개인 일정 */
+    const busySlots = new Set([
+      '2026-07-13|12:00',
+      '2026-07-14|10:00',
+      '2026-07-14|13:00',
+      '2026-07-15|15:00'
+    ]);
+
+    /* 다른 참석자 응답 정보 */
+    const otherAvailability = {
+      '2026-07-13|10:00': '참석자 3명 가능',
+      '2026-07-13|14:00': '참석자 2명 가능',
+      '2026-07-14|11:00': '참석자 전원 가능',
+      '2026-07-14|15:00': '참석자 3명 가능',
+      '2026-07-15|09:00': '참석자 2명 가능',
+      '2026-07-15|14:00': '참석자 전원 가능'
+    };
+
+    /* 사용자가 선택한 시간 */
+    const selectedSlots = new Map();
+
+    const timeGrid =
+      document.getElementById('timeGrid');
+
+    const stateLabels = {
+      none: `
+        <span class="text-xl leading-none">+</span>
+        <span class="text-[10px] font-bold">
+          선택
+        </span>
+      `,
+
+      available: `
+        <span class="text-sm font-bold">
+          ✓ 가능
+        </span>
+      `,
+
+      preferred: `
+        <span class="text-sm font-bold">
+          ★ 선호
+        </span>
+      `
+    };
+
+    /* =========================
+       시간표 그리기
+    ========================== */
+
+    function renderGrid() {
+      timeGrid.innerHTML = '';
+
+      times.forEach(function (time) {
+        const row =
+          document.createElement('div');
+
+        row.className =
+          'grid grid-cols-4 border-b border-slate-200 last:border-b-0';
+
+        /* 시간 영역 */
+        const timeCell =
+          document.createElement('div');
+
+        timeCell.className =
+          'flex items-center justify-center border-r border-slate-200 bg-slate-50 p-4 text-sm font-bold text-slate-500';
+
+        timeCell.textContent = time;
+
+        row.appendChild(timeCell);
+
+        /* 날짜별 시간 칸 */
+        dates.forEach(function (date, index) {
+          const key =
+            date.key + '|' + time;
+
+          const cell =
+            document.createElement('div');
+
+          cell.className =
+            'p-2 ' +
+            (
+              index < dates.length - 1
+                ? 'border-r border-slate-200'
+                : ''
+            );
+
+          const button =
+            document.createElement('button');
+
+          button.type = 'button';
+          button.dataset.key = key;
+
+          button.dataset.state =
+            selectedSlots.get(key) || 'none';
+
+          button.className =
+            'slot-button w-full rounded-xl flex flex-col items-center justify-center gap-0.5 p-2';
+
+          /* 선택 불가 시간 */
+          if (busySlots.has(key)) {
+            button.disabled = true;
+
+            button.innerHTML = `
+              <span class="text-[11px] font-bold">
+                선택 불가
+              </span>
+
+              <span class="text-[10px]">
+                개인 일정
+              </span>
+            `;
+          } else {
+            updateSlotButton(button);
+
+            button.addEventListener(
+              'click',
+              function () {
+                cycleSlot(button);
+              }
+            );
+          }
+
+          cell.appendChild(button);
+
+          /* 다른 참여자 가능 정보 */
+          if (
+            otherAvailability[key] &&
+            !busySlots.has(key)
+          ) {
+            const information =
+              document.createElement('p');
+
+            information.className =
+              'mt-1 text-center text-[10px] font-semibold text-slate-400';
+
+            information.textContent =
+              otherAvailability[key];
+
+            cell.appendChild(information);
+          }
+
+          row.appendChild(cell);
+        });
+
+        timeGrid.appendChild(row);
+      });
+
+      updateSelectionCount();
+    }
+
+    /* =========================
+       시간 선택 상태 변경
+    ========================== */
+
+    function updateSlotButton(button) {
+      button.innerHTML =
+        stateLabels[button.dataset.state];
+    }
+
+    function cycleSlot(button) {
+      const currentState =
+        button.dataset.state;
+
+      let nextState = 'none';
+
+      if (currentState === 'none') {
+        nextState = 'available';
+      } else if (currentState === 'available') {
+        nextState = 'preferred';
+      } else {
+        nextState = 'none';
+      }
+
+      button.dataset.state = nextState;
+
+      if (nextState === 'none') {
+        selectedSlots.delete(
+          button.dataset.key
+        );
+      } else {
+        selectedSlots.set(
+          button.dataset.key,
+          nextState
+        );
+      }
+
+      updateSlotButton(button);
+      updateSelectionCount();
+      saveDraft();
+    }
+
+    function updateSelectionCount() {
+      const count =
+        selectedSlots.size;
+
+      document
+        .getElementById('selectionCount')
+        .textContent =
+          '선택 ' + count + '개';
+    }
+
+    /* =========================
+       토스트 메시지
+    ========================== */
+
+    function showToast(message) {
+      const toast =
+        document.getElementById('toast');
+
+      toast.textContent = message;
+      toast.classList.add('is-visible');
+
+      clearTimeout(window.toastTimer);
+
+      window.toastTimer =
+        setTimeout(function () {
+          toast.classList.remove(
+            'is-visible'
+          );
+        }, 1800);
+    }
+
+    /* =========================
+       입력값 확인
+    ========================== */
+
+    function validateForm() {
+      const nameInput =
+        document.getElementById(
+          'participantName'
+        );
+
+      const emailInput =
+        document.getElementById(
+          'participantEmail'
+        );
+
+      const nameError =
+        document.getElementById(
+          'nameError'
+        );
+
+      const emailError =
+        document.getElementById(
+          'emailError'
+        );
+
+      const nameValid =
+        nameInput.value.trim().length >= 2;
+
+      const emailValid =
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+          .test(
+            emailInput.value.trim()
+          );
+
+      nameError.classList.toggle(
+        'hidden',
+        nameValid
+      );
+
+      emailError.classList.toggle(
+        'hidden',
+        emailValid
+      );
+
+      return nameValid && emailValid;
+    }
+
+    /* =========================
+       제출 확인 모달
+    ========================== */
+
+    function openSubmitModal() {
+      if (!validateForm()) {
+        showToast(
+          '이름과 이메일을 확인해주세요.'
+        );
+
+        return;
+      }
+
+      if (selectedSlots.size === 0) {
+        showToast(
+          '가능한 시간을 한 개 이상 선택해주세요.'
+        );
+
+        return;
+      }
+
+      const summary =
+        document.getElementById(
+          'submissionSummary'
+        );
+
+      summary.innerHTML = '';
+
+      const sortedSlots =
+        [...selectedSlots.entries()]
+          .sort(function (a, b) {
+            return a[0].localeCompare(b[0]);
+          });
+
+      sortedSlots.forEach(
+        function ([key, state]) {
+          const parts = key.split('|');
+          const dateKey = parts[0];
+          const time = parts[1];
+
+          const dateInformation =
+            dates.find(function (date) {
+              return date.key === dateKey;
+            });
+
+          const item =
+            document.createElement('div');
+
+          item.className =
+            'flex items-center justify-between rounded-xl bg-white px-4 py-3 border border-slate-100';
+
+          const stateText =
+            state === 'preferred'
+              ? '선호'
+              : '가능';
+
+          const stateColor =
+            state === 'preferred'
+              ? 'text-primary'
+              : 'text-indigo-500';
+
+          item.innerHTML = `
+            <span class="text-sm text-slate-600">
+              ${dateInformation.label}
+              ${time}
+            </span>
+
+            <span class="font-bold ${stateColor}">
+              ${stateText}
+            </span>
+          `;
+
+          summary.appendChild(item);
+        }
+      );
+
+      const modal =
+        document.getElementById(
+          'submitModal'
+        );
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeSubmitModal() {
+      const modal =
+        document.getElementById(
+          'submitModal'
+        );
+
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    /* =========================
+       임시 저장
+    ========================== */
+
+    function saveDraft() {
+      const draft = {
+        name:
+          document
+            .getElementById(
+              'participantName'
+            )
+            .value,
+
+        email:
+          document
+            .getElementById(
+              'participantEmail'
+            )
+            .value,
+
+        travel:
+          document
+            .getElementById(
+              'travelToggle'
+            )
+            .checked,
+
+        departure:
+          document
+            .getElementById(
+              'departureLocation'
+            )
+            .value,
+
+        travelMinutes:
+          document
+            .getElementById(
+              'travelMinutes'
+            )
+            .value,
+
+        slots:
+          Object.fromEntries(
+            selectedSlots
+          )
+      };
+
+      localStorage.setItem(
+        'puzzliAvailabilityDraft',
+        JSON.stringify(draft)
+      );
+    }
+
+    function loadDraft() {
+      const saved =
+        localStorage.getItem(
+          'puzzliAvailabilityDraft'
+        );
+
+      if (!saved) {
+        return;
+      }
+
+      try {
+        const draft =
+          JSON.parse(saved);
+
+        document
+          .getElementById(
+            'participantName'
+          )
+          .value =
+            draft.name || '';
+
+        document
+          .getElementById(
+            'participantEmail'
+          )
+          .value =
+            draft.email || '';
+
+        document
+          .getElementById(
+            'travelToggle'
+          )
+          .checked =
+            Boolean(draft.travel);
+
+        document
+          .getElementById(
+            'departureLocation'
+          )
+          .value =
+            draft.departure || '';
+
+        document
+          .getElementById(
+            'travelMinutes'
+          )
+          .value =
+            draft.travelMinutes || '30';
+
+        Object.entries(
+          draft.slots || {}
+        ).forEach(
+          function ([key, state]) {
+            selectedSlots.set(
+              key,
+              state
+            );
+          }
+        );
+
+        document
+          .getElementById(
+            'travelOptions'
+          )
+          .classList.toggle(
+            'hidden',
+            !draft.travel
+          );
+      } catch (error) {
+        localStorage.removeItem(
+          'puzzliAvailabilityDraft'
+        );
+      }
+    }
+
+    /* =========================
+       초기 실행
+    ========================== */
+
+    loadDraft();
+    renderGrid();
+
+    /* 선택 초기화 */
+    document
+      .getElementById(
+        'clearSelectionButton'
+      )
+      .addEventListener(
+        'click',
+        function () {
+          selectedSlots.clear();
+
+          renderGrid();
+          saveDraft();
+
+          showToast(
+            '선택한 시간이 초기화되었습니다.'
+          );
+        }
+      );
+
+    /* 이동 시간 옵션 */
+    document
+      .getElementById(
+        'travelToggle'
+      )
+      .addEventListener(
+        'change',
+        function () {
+          document
+            .getElementById(
+              'travelOptions'
+            )
+            .classList.toggle(
+              'hidden',
+              !this.checked
+            );
+
+          saveDraft();
+        }
+      );
+
+    /* 입력 내용 자동 저장 */
+    [
+      'participantName',
+      'participantEmail',
+      'departureLocation',
+      'travelMinutes'
+    ].forEach(function (id) {
+      const element =
+        document.getElementById(id);
+
+      element.addEventListener(
+        'input',
+        saveDraft
+      );
+
+      element.addEventListener(
+        'change',
+        saveDraft
+      );
+    });
+
+    /* 투표 제출 모달 */
+    document
+      .getElementById(
+        'submitVoteButton'
+      )
+      .addEventListener(
+        'click',
+        openSubmitModal
+      );
+
+    document
+      .getElementById(
+        'closeSubmitModal'
+      )
+      .addEventListener(
+        'click',
+        closeSubmitModal
+      );
+
+    document
+      .getElementById(
+        'editSelectionButton'
+      )
+      .addEventListener(
+        'click',
+        closeSubmitModal
+      );
+
+    /* 최종 제출 */
+    document
+      .getElementById(
+        'confirmSubmitButton'
+      )
+      .addEventListener(
+        'click',
+        function () {
+          const result = {
+            submittedAt:
+              new Date().toISOString(),
+
+            name:
+              document
+                .getElementById(
+                  'participantName'
+                )
+                .value
+                .trim(),
+
+            email:
+              document
+                .getElementById(
+                  'participantEmail'
+                )
+                .value
+                .trim(),
+
+            slots:
+              Object.fromEntries(
+                selectedSlots
+              )
+          };
+
+          localStorage.setItem(
+            'puzzliAvailabilityResponse',
+            JSON.stringify(result)
+          );
+
+          localStorage.removeItem(
+            'puzzliAvailabilityDraft'
+          );
+
+          closeSubmitModal();
+
+          const submitButton =
+            document.getElementById(
+              'submitVoteButton'
+            );
+
+          submitButton.textContent =
+            '응답 완료';
+
+          submitButton.disabled = true;
+
+          submitButton.classList.add(
+            'opacity-60',
+            'cursor-not-allowed'
+          );
+
+          showToast(
+            '가능한 시간이 제출되었습니다.'
+          );
+        }
+      );
+
+    /* 취소 */
+    document
+      .getElementById(
+        'cancelButton'
+      )
+      .addEventListener(
+        'click',
+        function () {
+          window.location.href =
+            'index.html';
+        }
+      );
+
+    /* 검색 */
+    document
+      .getElementById(
+        'meetingSearch'
+      )
+      .addEventListener(
+        'keydown',
+        function (event) {
+          if (event.key !== 'Enter') {
+            return;
+          }
+
+          const keyword =
+            this.value
+              .trim()
+              .toLowerCase();
+
+          if (!keyword) {
+            return;
+          }
+
+          if (
+            'q4 기획 회의 가능한 시간 선택'
+              .includes(keyword)
+          ) {
+            showToast(
+              '현재 회의를 찾았습니다.'
+            );
+          } else {
+            showToast(
+              '일치하는 회의가 없습니다.'
+            );
+          }
+        }
+      );
+
+    /* 알림 열기 */
+    document
+      .getElementById(
+        'notificationButton'
+      )
+      .addEventListener(
+        'click',
+        function () {
+          document
+            .getElementById(
+              'notificationPanel'
+            )
+            .classList.toggle(
+              'hidden'
+            );
+
+          document
+            .getElementById(
+              'profilePanel'
+            )
+            .classList.add(
+              'hidden'
+            );
+        }
+      );
+
+    /* 프로필 열기 */
+    document
+      .getElementById(
+        'profileButton'
+      )
+      .addEventListener(
+        'click',
+        function () {
+          document
+            .getElementById(
+              'profilePanel'
+            )
+            .classList.toggle(
+              'hidden'
+            );
+
+          document
+            .getElementById(
+              'notificationPanel'
+            )
+            .classList.add(
+              'hidden'
+            );
+        }
+      );
+
+    /* 도움말 열기 */
+    document
+      .querySelectorAll(
+        '.help-open'
+      )
+      .forEach(function (button) {
+        button.addEventListener(
+          'click',
+          function () {
+            const modal =
+              document.getElementById(
+                'helpModal'
+              );
+
+            modal.classList.remove(
+              'hidden'
+            );
+
+            modal.classList.add(
+              'flex'
+            );
+          }
+        );
+      });
+
+    /* 도움말 닫기 */
+    function closeHelpModal() {
+      const modal =
+        document.getElementById(
+          'helpModal'
+        );
+
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    document
+      .getElementById(
+        'closeHelpModal'
+      )
+      .addEventListener(
+        'click',
+        closeHelpModal
+      );
+
+    document
+      .getElementById(
+        'helpConfirmButton'
+      )
+      .addEventListener(
+        'click',
+        closeHelpModal
+      );
+
+    /* 로그아웃 */
+    function handleLogout() {
+      showToast(
+        '로그아웃 기능은 로그인 연동 후 사용할 수 있습니다.'
+      );
+    }
+
+    document
+      .getElementById(
+        'sidebarLogoutButton'
+      )
+      .addEventListener(
+        'click',
+        handleLogout
+      );
+
+    document
+      .getElementById(
+        'profileLogoutButton'
+      )
+      .addEventListener(
+        'click',
+        handleLogout
+      );
+
+    /* 모달 바깥 클릭 시 닫기 */
+    document
+      .getElementById(
+        'submitModal'
+      )
+      .addEventListener(
+        'click',
+        function (event) {
+          if (event.target === this) {
+            closeSubmitModal();
+          }
+        }
+      );
+
+    document
+      .getElementById(
+        'helpModal'
+      )
+      .addEventListener(
+        'click',
+        function (event) {
+          if (event.target === this) {
+            closeHelpModal();
+          }
+        }
+      );
+  </script>
+</body>
+</html>

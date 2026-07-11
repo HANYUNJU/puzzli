@@ -1,0 +1,1753 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>PUZZLI - 고객 센터</title>
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: [
+              'Hanken Grotesk',
+              'Noto Sans KR',
+              'sans-serif'
+            ]
+          },
+
+          colors: {
+            primary: '#4F46E5'
+          },
+
+          boxShadow: {
+            card: '0 12px 30px rgba(15, 23, 42, 0.06)'
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body {
+      font-family:
+        'Hanken Grotesk',
+        'Noto Sans KR',
+        sans-serif;
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition:
+        max-height 0.25s ease,
+        opacity 0.2s ease,
+        padding 0.2s ease;
+    }
+
+    .faq-item.is-open .faq-answer {
+      max-height: 400px;
+      opacity: 1;
+      padding-top: 16px;
+    }
+
+    .faq-item.is-open .faq-icon {
+      transform: rotate(45deg);
+    }
+
+    .faq-icon {
+      transition: transform 0.2s ease;
+    }
+
+    .toast {
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, 12px);
+      transition: 0.2s ease;
+    }
+
+    .toast.is-visible {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+  </style>
+</head>
+
+<body class="bg-slate-50 flex h-screen overflow-hidden text-slate-900">
+
+  <!-- =========================
+       사이드바
+  ========================== -->
+  <aside
+    class="hidden md:flex w-64 shrink-0 bg-white border-r border-slate-200 flex-col h-full"
+  >
+    <!-- 로고 -->
+    <div class="p-6">
+      <div class="flex items-center gap-2">
+
+        <div
+          class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center"
+        >
+          <div class="grid grid-cols-2 gap-0.5">
+            <div class="w-2 h-2 bg-white rounded-sm"></div>
+            <div class="w-2 h-2 bg-white rounded-sm"></div>
+            <div class="w-2 h-2 bg-white rounded-sm"></div>
+            <div class="w-2 h-2 bg-white rounded-sm opacity-50"></div>
+          </div>
+        </div>
+
+        <span class="text-2xl font-bold text-indigo-950 tracking-tight">
+          PUZZLI
+        </span>
+      </div>
+    </div>
+
+<!-- 메뉴 -->
+    <nav class="flex-1 px-4 space-y-2 mt-4">
+
+      <!-- 대시보드 -->
+      <a
+  class="flex items-center gap-3 p-3 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors"
+  href="index.html"
+>
+        <svg
+          class="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+          ></path>
+        </svg>
+
+        <span class="font-medium">대시보드</span>
+      </a>
+
+      <!-- 일정 -->
+      <a
+        class="flex items-center gap-3 p-3 rounded-xl text-slate-600 hover:bg-slate-100"
+        href="view-schedule.html"
+      >
+        <svg
+          class="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+          ></path>
+        </svg>
+
+        <span>일정</span>
+      </a>
+
+      <!-- 팀 -->
+      <a class="flex items-center gap-3 p-3 text-gray-600 hover:bg-gray-100 rounded-lg" href="team.html">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span>팀</span>
+</a>
+      <!-- 환경 설정 -->
+      <a
+        class="flex items-center gap-3 p-3 rounded-xl text-slate-600 hover:bg-slate-100"
+        href="Environment-setting.html"
+      >
+        <svg
+          class="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+          ></path>
+
+          <path
+            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+          ></path>
+        </svg>
+
+        <span>환경 설정</span>
+      </a>
+    </nav>
+
+    <!-- 하단 -->
+    <div class="p-4 mt-auto border-t border-slate-100">
+      <button
+        type="button"
+        onclick="window.location.href='create-poll.html'"
+        class="w-full flex items-center justify-center gap-2 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-indigo-700 transition"
+      >
+        <span class="text-xl leading-none">+</span>
+        새 일정 만들기
+      </button>
+
+      <div class="mt-4 pt-4 border-t border-slate-100 space-y-4">
+
+  <!-- 고객 센터 -->
+  <a
+  href="customer-center.html"
+  class="flex items-center gap-3 p-3 rounded-xl bg-indigo-600 text-white text-sm font-bold transition-colors"
+>
+  <svg
+    class="w-5 h-5"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+    ></path>
+  </svg>
+
+  <span>고객 센터</span>
+</a>
+
+  <!-- 로그아웃 -->
+  <button
+  id="sidebarLogoutButton"
+  type="button"
+  class="w-full flex items-center gap-3 p-3 rounded-xl text-sm font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+  onclick="showToast('로그아웃 기능은 로그인 연동 후 사용할 수 있습니다.')"
+>
+  <svg
+    class="w-5 h-5 shrink-0"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+    ></path>
+  </svg>
+
+  <span>로그아웃</span>
+</button>
+</div>
+    </div>
+  </aside>
+
+  <!-- =========================
+       메인
+  ========================== -->
+  <main class="flex-1 flex flex-col h-full min-w-0">
+
+    <!-- 상단 헤더 -->
+    <header
+      class="h-16 shrink-0 bg-white border-b border-slate-200 flex items-center justify-between px-5 md:px-8"
+    >
+      <div>
+        <p class="text-xs font-semibold text-slate-400">
+          도움말 및 문의
+        </p>
+
+        <h1 class="text-lg font-bold text-slate-900">
+          고객 센터
+        </h1>
+      </div>
+
+      <div class="flex items-center gap-4 md:gap-6">
+
+        <button
+          id="contactShortcutButton"
+          type="button"
+          class="hidden sm:block rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50"
+        >
+          문의하기
+        </button>
+
+        <!-- 알림 -->
+        <div class="relative">
+          <button
+            id="notificationButton"
+            type="button"
+            class="text-slate-400 hover:text-slate-700"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+              ></path>
+            </svg>
+          </button>
+
+          <div
+            id="notificationPanel"
+            class="hidden absolute right-0 top-10 z-40 w-72 rounded-2xl border border-slate-200 bg-white p-4 shadow-xl"
+          >
+            <p class="font-bold text-slate-900">
+              알림
+            </p>
+
+            <p class="mt-2 text-sm text-slate-500">
+              등록된 새로운 고객 센터 알림이 없습니다.
+            </p>
+          </div>
+        </div>
+
+        <!-- 프로필 -->
+        <div class="relative">
+          <button
+            id="profileButton"
+            type="button"
+            class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 border border-indigo-200 flex items-center justify-center font-bold text-sm"
+          >
+            유
+          </button>
+
+          <div
+            id="profilePanel"
+            class="hidden absolute right-0 top-11 z-40 w-52 rounded-2xl border border-slate-200 bg-white p-3 shadow-xl"
+          >
+            <p class="px-3 py-2 text-sm font-bold">
+              유재석
+            </p>
+
+            <a
+              href="Environment-setting.html"
+              class="block rounded-xl px-3 py-2 text-sm text-slate-600 hover:bg-slate-50"
+            >
+              환경 설정
+            </a>
+
+            <button
+              id="profileLogoutButton"
+              type="button"
+              class="w-full text-left rounded-xl px-3 py-2 text-sm text-slate-600 hover:bg-slate-50"
+            >
+              로그아웃
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 콘텐츠 -->
+    <div class="flex-1 overflow-y-auto">
+
+      <!-- 검색 영역 -->
+      <section
+        class="bg-gradient-to-br from-indigo-600 to-violet-600 px-5 py-12 md:px-10 md:py-16 text-white"
+      >
+        <div class="max-w-4xl mx-auto text-center">
+
+          <span
+            class="inline-flex rounded-full bg-white/15 px-3 py-1 text-xs font-bold"
+          >
+            PUZZLI HELP CENTER
+          </span>
+
+          <h2 class="mt-5 text-3xl md:text-4xl font-bold">
+            무엇을 도와드릴까요?
+          </h2>
+
+          <p class="mt-3 text-indigo-100">
+            일정 생성부터 참석자 응답, 일정 확정까지 필요한 도움말을 찾아보세요.
+          </p>
+
+          <div class="relative mt-8 max-w-2xl mx-auto">
+            <svg
+              class="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+              ></path>
+            </svg>
+
+            <input
+              id="helpSearchInput"
+              type="search"
+              placeholder="궁금한 내용을 검색하세요"
+              class="w-full rounded-2xl border-0 bg-white py-4 pl-14 pr-5 text-slate-900 shadow-xl focus:ring-4 focus:ring-white/30"
+            >
+          </div>
+
+          <p
+            id="searchResultText"
+            class="mt-3 text-sm text-indigo-100"
+          >
+            예: 일정 만들기, 참석자 초대, 가능 시간 선택
+          </p>
+        </div>
+      </section>
+
+      <div class="max-w-[1400px] mx-auto p-5 md:p-8 space-y-8">
+
+        <!-- 빠른 이용 가이드 -->
+        <section>
+          <div class="mb-5">
+            <h2 class="text-2xl font-bold text-slate-900">
+              빠른 이용 가이드
+            </h2>
+
+            <p class="mt-1 text-sm text-slate-500">
+              자주 사용하는 기능으로 바로 이동할 수 있습니다.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+
+            <button
+              type="button"
+              onclick="window.location.href='create-poll.html'"
+              class="group rounded-2xl border border-slate-200 bg-white p-5 text-left shadow-sm hover:-translate-y-1 hover:border-indigo-200 hover:shadow-card transition"
+            >
+              <div
+                class="w-11 h-11 rounded-xl bg-indigo-50 text-primary flex items-center justify-center"
+              >
+                <svg
+                  class="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M12 4v16m8-8H4"
+                    stroke-linecap="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+              </div>
+
+              <h3 class="mt-4 font-bold text-slate-900">
+                새 일정 만들기
+              </h3>
+
+              <p class="mt-2 text-sm leading-6 text-slate-500">
+                회의 제목, 후보 날짜와 참석자를 설정합니다.
+              </p>
+
+              <span
+                class="inline-flex mt-4 text-sm font-bold text-primary"
+              >
+                바로가기 →
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onclick="window.location.href='available-time.html'"
+              class="group rounded-2xl border border-slate-200 bg-white p-5 text-left shadow-sm hover:-translate-y-1 hover:border-indigo-200 hover:shadow-card transition"
+            >
+              <div
+                class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center"
+              >
+                <svg
+                  class="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+              </div>
+
+              <h3 class="mt-4 font-bold text-slate-900">
+                가능 시간 선택
+              </h3>
+
+              <p class="mt-2 text-sm leading-6 text-slate-500">
+                회의에 참여할 수 있는 시간대를 선택합니다.
+              </p>
+
+              <span class="inline-flex mt-4 text-sm font-bold text-primary">
+                바로가기 →
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onclick="window.location.href='current-situation.html'"
+              class="group rounded-2xl border border-slate-200 bg-white p-5 text-left shadow-sm hover:-translate-y-1 hover:border-indigo-200 hover:shadow-card transition"
+            >
+              <div
+                class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center"
+              >
+                <svg
+                  class="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M4 19V9m6 10V5m6 14v-7m4 7H2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+              </div>
+
+              <h3 class="mt-4 font-bold text-slate-900">
+                응답 현황 확인
+              </h3>
+
+              <p class="mt-2 text-sm leading-6 text-slate-500">
+                참석자 응답과 공통 가능 시간을 확인합니다.
+              </p>
+
+              <span class="inline-flex mt-4 text-sm font-bold text-primary">
+                바로가기 →
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onclick="window.location.href='view-schedule.html'"
+              class="group rounded-2xl border border-slate-200 bg-white p-5 text-left shadow-sm hover:-translate-y-1 hover:border-indigo-200 hover:shadow-card transition"
+            >
+              <div
+                class="w-11 h-11 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center"
+              >
+                <svg
+                  class="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M9 12l2 2 4-4m5-1a9 9 0 11-18 0 9 9 0 0118 0z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+              </div>
+
+              <h3 class="mt-4 font-bold text-slate-900">
+                확정 일정 보기
+              </h3>
+
+              <p class="mt-2 text-sm leading-6 text-slate-500">
+                최종 확정된 회의 시간과 정보를 확인합니다.
+              </p>
+
+              <span class="inline-flex mt-4 text-sm font-bold text-primary">
+                바로가기 →
+              </span>
+            </button>
+          </div>
+        </section>
+
+        <!-- FAQ -->
+        <section
+          class="grid grid-cols-1 xl:grid-cols-[230px_minmax(0,1fr)] gap-6"
+        >
+          <!-- 카테고리 -->
+          <aside
+            class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm h-fit"
+          >
+            <p class="px-3 pb-3 text-xs font-bold text-slate-400">
+              도움말 카테고리
+            </p>
+
+            <div id="faqCategoryButtons" class="space-y-1">
+
+              <button
+                type="button"
+                data-category="all"
+                class="faq-category w-full rounded-xl bg-primary px-4 py-3 text-left text-sm font-bold text-white"
+              >
+                전체 도움말
+              </button>
+
+              <button
+                type="button"
+                data-category="schedule"
+                class="faq-category w-full rounded-xl px-4 py-3 text-left text-sm font-bold text-slate-500 hover:bg-slate-50"
+              >
+                일정 만들기
+              </button>
+
+              <button
+                type="button"
+                data-category="participant"
+                class="faq-category w-full rounded-xl px-4 py-3 text-left text-sm font-bold text-slate-500 hover:bg-slate-50"
+              >
+                참석자 및 응답
+              </button>
+
+              <button
+                type="button"
+                data-category="confirm"
+                class="faq-category w-full rounded-xl px-4 py-3 text-left text-sm font-bold text-slate-500 hover:bg-slate-50"
+              >
+                일정 확정
+              </button>
+
+              <button
+                type="button"
+                data-category="account"
+                class="faq-category w-full rounded-xl px-4 py-3 text-left text-sm font-bold text-slate-500 hover:bg-slate-50"
+              >
+                계정 및 설정
+              </button>
+            </div>
+          </aside>
+
+          <!-- FAQ 목록 -->
+          <div
+            class="rounded-2xl border border-slate-200 bg-white p-5 md:p-6 shadow-sm"
+          >
+            <div class="mb-5">
+              <h2 class="text-2xl font-bold text-slate-900">
+                자주 묻는 질문
+              </h2>
+
+              <p class="mt-1 text-sm text-slate-500">
+                PUZZLI 이용 중 자주 발생하는 질문을 확인하세요.
+              </p>
+            </div>
+
+            <div
+              id="faqList"
+              class="divide-y divide-slate-100"
+            ></div>
+
+            <div
+              id="faqEmptyState"
+              class="hidden rounded-xl bg-slate-50 p-8 text-center"
+            >
+              <p class="font-bold text-slate-500">
+                검색 결과가 없습니다.
+              </p>
+
+              <p class="mt-2 text-sm text-slate-400">
+                다른 검색어를 입력하거나 문의를 남겨주세요.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- 문의하기 -->
+        <section
+          id="contactSection"
+          class="grid grid-cols-1 xl:grid-cols-[360px_minmax(0,1fr)] gap-6"
+        >
+          <!-- 안내 -->
+          <div
+            class="rounded-2xl bg-indigo-950 p-7 text-white"
+          >
+            <span
+              class="inline-flex rounded-full bg-white/10 px-3 py-1 text-xs font-bold"
+            >
+              1:1 문의
+            </span>
+
+            <h2 class="mt-5 text-2xl font-bold">
+              원하는 답변을 찾지 못했나요?
+            </h2>
+
+            <p class="mt-3 text-sm leading-6 text-indigo-200">
+              문의 내용을 남겨주시면 확인 후 등록한 이메일로 답변을 전달합니다.
+            </p>
+
+            <div class="mt-7 space-y-4">
+
+              <div class="flex items-start gap-3">
+                <div
+                  class="w-9 h-9 shrink-0 rounded-xl bg-white/10 flex items-center justify-center"
+                >
+                  ✓
+                </div>
+
+                <div>
+                  <p class="font-bold">
+                    문의 내용 자동 저장
+                  </p>
+
+                  <p class="mt-1 text-xs text-indigo-200">
+                    접수 내용은 현재 브라우저에 저장됩니다.
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-3">
+                <div
+                  class="w-9 h-9 shrink-0 rounded-xl bg-white/10 flex items-center justify-center"
+                >
+                  ✓
+                </div>
+
+                <div>
+                  <p class="font-bold">
+                    접수 번호 발급
+                  </p>
+
+                  <p class="mt-1 text-xs text-indigo-200">
+                    문의 완료 후 확인 번호가 표시됩니다.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 문의 폼 -->
+          <div
+            class="rounded-2xl border border-slate-200 bg-white p-6 md:p-8 shadow-sm"
+          >
+            <div>
+              <h2 class="text-2xl font-bold text-slate-900">
+                문의 접수
+              </h2>
+
+              <p class="mt-1 text-sm text-slate-500">
+                문의 유형과 내용을 자세히 입력해주세요.
+              </p>
+            </div>
+
+            <form
+              id="contactForm"
+              class="mt-7 space-y-5"
+            >
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                <div>
+                  <label
+                    for="contactName"
+                    class="block mb-2 text-sm font-bold text-slate-700"
+                  >
+                    이름
+                  </label>
+
+                  <input
+                    id="contactName"
+                    type="text"
+                    placeholder="이름을 입력하세요"
+                    class="w-full rounded-xl border-slate-200 focus:border-primary focus:ring-primary/20"
+                  >
+
+                  <p
+                    id="contactNameError"
+                    class="hidden mt-1 text-xs font-semibold text-red-500"
+                  >
+                    이름을 입력해주세요.
+                  </p>
+                </div>
+
+                <div>
+                  <label
+                    for="contactEmail"
+                    class="block mb-2 text-sm font-bold text-slate-700"
+                  >
+                    이메일
+                  </label>
+
+                  <input
+                    id="contactEmail"
+                    type="email"
+                    placeholder="example@puzzli.com"
+                    class="w-full rounded-xl border-slate-200 focus:border-primary focus:ring-primary/20"
+                  >
+
+                  <p
+                    id="contactEmailError"
+                    class="hidden mt-1 text-xs font-semibold text-red-500"
+                  >
+                    올바른 이메일을 입력해주세요.
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <label
+                  for="contactCategory"
+                  class="block mb-2 text-sm font-bold text-slate-700"
+                >
+                  문의 유형
+                </label>
+
+                <select
+                  id="contactCategory"
+                  class="w-full rounded-xl border-slate-200 focus:border-primary focus:ring-primary/20"
+                >
+                  <option value="">
+                    문의 유형을 선택하세요
+                  </option>
+
+                  <option value="일정 만들기">
+                    일정 만들기
+                  </option>
+
+                  <option value="참석자 및 응답">
+                    참석자 및 응답
+                  </option>
+
+                  <option value="일정 확정">
+                    일정 확정
+                  </option>
+
+                  <option value="계정 및 설정">
+                    계정 및 설정
+                  </option>
+
+                  <option value="오류 신고">
+                    오류 신고
+                  </option>
+
+                  <option value="기타">
+                    기타
+                  </option>
+                </select>
+
+                <p
+                  id="contactCategoryError"
+                  class="hidden mt-1 text-xs font-semibold text-red-500"
+                >
+                  문의 유형을 선택해주세요.
+                </p>
+              </div>
+
+              <div>
+                <label
+                  for="contactTitle"
+                  class="block mb-2 text-sm font-bold text-slate-700"
+                >
+                  문의 제목
+                </label>
+
+                <input
+                  id="contactTitle"
+                  type="text"
+                  placeholder="문의 제목을 입력하세요"
+                  class="w-full rounded-xl border-slate-200 focus:border-primary focus:ring-primary/20"
+                >
+
+                <p
+                  id="contactTitleError"
+                  class="hidden mt-1 text-xs font-semibold text-red-500"
+                >
+                  문의 제목을 입력해주세요.
+                </p>
+              </div>
+
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <label
+                    for="contactMessage"
+                    class="text-sm font-bold text-slate-700"
+                  >
+                    문의 내용
+                  </label>
+
+                  <span
+                    id="messageLength"
+                    class="text-xs text-slate-400"
+                  >
+                    0 / 500
+                  </span>
+                </div>
+
+                <textarea
+                  id="contactMessage"
+                  rows="7"
+                  maxlength="500"
+                  placeholder="문제가 발생한 상황이나 궁금한 내용을 자세히 작성해주세요."
+                  class="w-full resize-none rounded-xl border-slate-200 focus:border-primary focus:ring-primary/20"
+                ></textarea>
+
+                <p
+                  id="contactMessageError"
+                  class="hidden mt-1 text-xs font-semibold text-red-500"
+                >
+                  문의 내용을 10자 이상 입력해주세요.
+                </p>
+              </div>
+
+              <label
+                class="flex items-start gap-3 rounded-xl bg-slate-50 p-4 cursor-pointer"
+              >
+                <input
+                  id="privacyAgreement"
+                  type="checkbox"
+                  class="mt-0.5 w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary"
+                >
+
+                <span class="text-sm leading-6 text-slate-600">
+                  문의 답변을 위해 이름과 이메일을 수집하는 것에 동의합니다.
+                </span>
+              </label>
+
+              <p
+                id="privacyError"
+                class="hidden text-xs font-semibold text-red-500"
+              >
+                개인정보 수집에 동의해주세요.
+              </p>
+
+              <div class="flex justify-end">
+                <button
+                  type="submit"
+                  class="w-full md:w-auto rounded-xl bg-primary px-8 py-3 font-bold text-white hover:bg-indigo-700 transition"
+                >
+                  문의 접수하기
+                </button>
+              </div>
+            </form>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <!-- =========================
+       문의 완료 모달
+  ========================== -->
+  <div
+    id="successModal"
+    class="hidden fixed inset-0 z-50 bg-slate-900/40 items-center justify-center p-4"
+  >
+    <div
+      class="w-full max-w-md rounded-3xl bg-white p-7 text-center shadow-2xl"
+    >
+      <div
+        class="mx-auto w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center"
+      >
+        <svg
+          class="w-7 h-7"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M5 13l4 4L19 7"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+          ></path>
+        </svg>
+      </div>
+
+      <h2 class="mt-5 text-2xl font-bold text-slate-900">
+        문의가 접수되었습니다
+      </h2>
+
+      <p class="mt-2 text-sm leading-6 text-slate-500">
+        문의 내용을 확인한 후 입력한 이메일로 답변을 전달합니다.
+      </p>
+
+      <div
+        class="mt-6 rounded-2xl bg-slate-50 p-4"
+      >
+        <p class="text-xs font-bold text-slate-400">
+          접수 번호
+        </p>
+
+        <p
+          id="ticketNumber"
+          class="mt-1 text-lg font-bold text-primary"
+        ></p>
+      </div>
+
+      <button
+        id="closeSuccessModal"
+        type="button"
+        class="mt-6 w-full rounded-xl bg-primary py-3 font-bold text-white hover:bg-indigo-700"
+      >
+        확인
+      </button>
+    </div>
+  </div>
+
+  <!-- 토스트 -->
+  <div
+    id="toast"
+    class="toast fixed bottom-6 left-1/2 z-[60] rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-xl"
+  ></div>
+
+  <script>
+    /* =========================
+       FAQ 데이터
+    ========================== */
+
+    const faqData = [
+      {
+        id: 1,
+        category: 'schedule',
+        question: '새 일정을 만드는 방법이 궁금해요.',
+        answer:
+          '왼쪽 메뉴의 새 일정 만들기 버튼을 누른 뒤 회의 정보, 후보 날짜, 참석자를 순서대로 설정하면 됩니다.',
+        keywords:
+          '새 일정 일정 만들기 회의 생성 날짜 참석자'
+      },
+      {
+        id: 2,
+        category: 'schedule',
+        question: '회의 시간을 1시간 이상으로 설정할 수 있나요?',
+        answer:
+          '회의 생성 화면의 진행 시간 항목에서 30분, 1시간, 1시간 30분 등 원하는 시간을 선택할 수 있습니다.',
+        keywords:
+          '회의 시간 진행 시간 30분 1시간'
+      },
+      {
+        id: 3,
+        category: 'participant',
+        question: '참석자는 어떻게 초대하나요?',
+        answer:
+          '일정 생성 과정에서 이메일 주소를 입력하거나 팀에 등록된 구성원을 선택하여 참석자를 추가할 수 있습니다.',
+        keywords:
+          '참석자 초대 이메일 팀 구성원 추가'
+      },
+      {
+        id: 4,
+        category: 'participant',
+        question: '필수 참석자와 선택 참석자의 차이는 무엇인가요?',
+        answer:
+          '필수 참석자는 회의 시간 결정 시 반드시 가능한 시간이 고려되며, 선택 참석자는 가능한 경우 참여하는 구성원입니다.',
+        keywords:
+          '필수 참석자 선택 참석자 차이 권한'
+      },
+      {
+        id: 5,
+        category: 'participant',
+        question: '가능 시간을 다시 수정할 수 있나요?',
+        answer:
+          '응답 마감 전이라면 가능 시간 선택 페이지에 다시 접속하여 선택한 시간대를 수정하고 재제출할 수 있습니다.',
+        keywords:
+          '가능 시간 수정 재제출 응답 변경'
+      },
+      {
+        id: 6,
+        category: 'confirm',
+        question: '공통 가능 시간은 어떤 기준으로 표시되나요?',
+        answer:
+          '응답을 완료한 참석자들의 가능 시간대를 합쳐 참석 가능한 인원이 많은 순서대로 표시합니다.',
+        keywords:
+          '공통 가능 시간 기준 참석 가능 인원'
+      },
+      {
+        id: 7,
+        category: 'confirm',
+        question: '확정한 일정을 변경할 수 있나요?',
+        answer:
+          '확정된 일정 상세 화면에서 일정 변경을 요청할 수 있습니다. 변경 시 참석자에게 새로운 알림이 전송됩니다.',
+        keywords:
+          '확정 일정 변경 수정 알림'
+      },
+      {
+        id: 8,
+        category: 'confirm',
+        question: '응답하지 않은 참석자가 있어도 일정을 확정할 수 있나요?',
+        answer:
+          '확정할 수 있지만 필수 참석자가 응답하지 않았다면 일정을 확정하기 전에 응답을 요청하는 것이 좋습니다.',
+        keywords:
+          '미응답 참석자 일정 확정 필수 참석자'
+      },
+      {
+        id: 9,
+        category: 'account',
+        question: '알림 설정은 어디에서 변경하나요?',
+        answer:
+          '환경 설정 페이지의 알림 설정 영역에서 이메일, 브라우저, 모바일 알림 수신 여부를 변경할 수 있습니다.',
+        keywords:
+          '알림 설정 이메일 브라우저 모바일'
+      },
+      {
+        id: 10,
+        category: 'account',
+        question: 'Google Calendar와 연동할 수 있나요?',
+        answer:
+          '환경 설정의 연동된 서비스 메뉴에서 Google Calendar 계정을 연결할 수 있습니다.',
+        keywords:
+          '구글 캘린더 연동 Google Calendar'
+      }
+    ];
+
+    let activeCategory = 'all';
+    let faqSearchKeyword = '';
+
+    /* =========================
+       FAQ 출력
+    ========================== */
+
+    function renderFaqs() {
+      const list =
+        document.getElementById(
+          'faqList'
+        );
+
+      const emptyState =
+        document.getElementById(
+          'faqEmptyState'
+        );
+
+      const filteredFaqs =
+        faqData.filter(function (faq) {
+          const categoryMatches =
+            activeCategory === 'all' ||
+            faq.category ===
+            activeCategory;
+
+          const searchableText =
+            (
+              faq.question +
+              ' ' +
+              faq.answer +
+              ' ' +
+              faq.keywords
+            ).toLowerCase();
+
+          const keywordMatches =
+            !faqSearchKeyword ||
+            searchableText.includes(
+              faqSearchKeyword
+            );
+
+          return (
+            categoryMatches &&
+            keywordMatches
+          );
+        });
+
+      document
+        .getElementById(
+          'searchResultText'
+        )
+        .textContent =
+          faqSearchKeyword
+            ? filteredFaqs.length +
+              '개의 도움말을 찾았습니다.'
+            : '예: 일정 만들기, 참석자 초대, 가능 시간 선택';
+
+      if (filteredFaqs.length === 0) {
+        list.innerHTML = '';
+        emptyState.classList.remove(
+          'hidden'
+        );
+
+        return;
+      }
+
+      emptyState.classList.add(
+        'hidden'
+      );
+
+      list.innerHTML =
+        filteredFaqs.map(
+          function (faq) {
+            return `
+              <article
+                class="faq-item py-5"
+              >
+                <button
+                  type="button"
+                  class="faq-question w-full flex items-start justify-between gap-5 text-left"
+                >
+                  <span
+                    class="font-bold text-slate-900"
+                  >
+                    ${faq.question}
+                  </span>
+
+                  <span
+                    class="faq-icon shrink-0 w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-xl"
+                  >
+                    +
+                  </span>
+                </button>
+
+                <div
+                  class="faq-answer pr-12"
+                >
+                  <p
+                    class="text-sm leading-7 text-slate-500"
+                  >
+                    ${faq.answer}
+                  </p>
+                </div>
+              </article>
+            `;
+          }
+        ).join('');
+
+      document
+        .querySelectorAll(
+          '.faq-question'
+        )
+        .forEach(function (button) {
+          button.addEventListener(
+            'click',
+            function () {
+              const currentItem =
+                button.closest(
+                  '.faq-item'
+                );
+
+              document
+                .querySelectorAll(
+                  '.faq-item'
+                )
+                .forEach(function (item) {
+                  if (
+                    item !== currentItem
+                  ) {
+                    item.classList.remove(
+                      'is-open'
+                    );
+                  }
+                });
+
+              currentItem.classList.toggle(
+                'is-open'
+              );
+            }
+          );
+        });
+    }
+
+    /* FAQ 검색 */
+    document
+      .getElementById(
+        'helpSearchInput'
+      )
+      .addEventListener(
+        'input',
+        function () {
+          faqSearchKeyword =
+            this.value
+              .trim()
+              .toLowerCase();
+
+          renderFaqs();
+        }
+      );
+
+    /* FAQ 카테고리 */
+    document
+      .querySelectorAll(
+        '.faq-category'
+      )
+      .forEach(function (button) {
+        button.addEventListener(
+          'click',
+          function () {
+            activeCategory =
+              button.dataset.category;
+
+            document
+              .querySelectorAll(
+                '.faq-category'
+              )
+              .forEach(
+                function (categoryButton) {
+                  categoryButton.classList.remove(
+                    'bg-primary',
+                    'text-white'
+                  );
+
+                  categoryButton.classList.add(
+                    'text-slate-500'
+                  );
+                }
+              );
+
+            button.classList.remove(
+              'text-slate-500'
+            );
+
+            button.classList.add(
+              'bg-primary',
+              'text-white'
+            );
+
+            renderFaqs();
+          }
+        );
+      });
+
+    /* =========================
+       문의 폼
+    ========================== */
+
+    const messageInput =
+      document.getElementById(
+        'contactMessage'
+      );
+
+    messageInput.addEventListener(
+      'input',
+      function () {
+        document
+          .getElementById(
+            'messageLength'
+          )
+          .textContent =
+            this.value.length +
+            ' / 500';
+      }
+    );
+
+    function validateContactForm() {
+      const name =
+        document
+          .getElementById(
+            'contactName'
+          )
+          .value
+          .trim();
+
+      const email =
+        document
+          .getElementById(
+            'contactEmail'
+          )
+          .value
+          .trim();
+
+      const category =
+        document
+          .getElementById(
+            'contactCategory'
+          )
+          .value;
+
+      const title =
+        document
+          .getElementById(
+            'contactTitle'
+          )
+          .value
+          .trim();
+
+      const message =
+        document
+          .getElementById(
+            'contactMessage'
+          )
+          .value
+          .trim();
+
+      const privacy =
+        document
+          .getElementById(
+            'privacyAgreement'
+          )
+          .checked;
+
+      const nameValid =
+        name.length >= 2;
+
+      const emailValid =
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+          .test(email);
+
+      const categoryValid =
+        Boolean(category);
+
+      const titleValid =
+        title.length >= 2;
+
+      const messageValid =
+        message.length >= 10;
+
+      document
+        .getElementById(
+          'contactNameError'
+        )
+        .classList.toggle(
+          'hidden',
+          nameValid
+        );
+
+      document
+        .getElementById(
+          'contactEmailError'
+        )
+        .classList.toggle(
+          'hidden',
+          emailValid
+        );
+
+      document
+        .getElementById(
+          'contactCategoryError'
+        )
+        .classList.toggle(
+          'hidden',
+          categoryValid
+        );
+
+      document
+        .getElementById(
+          'contactTitleError'
+        )
+        .classList.toggle(
+          'hidden',
+          titleValid
+        );
+
+      document
+        .getElementById(
+          'contactMessageError'
+        )
+        .classList.toggle(
+          'hidden',
+          messageValid
+        );
+
+      document
+        .getElementById(
+          'privacyError'
+        )
+        .classList.toggle(
+          'hidden',
+          privacy
+        );
+
+      return (
+        nameValid &&
+        emailValid &&
+        categoryValid &&
+        titleValid &&
+        messageValid &&
+        privacy
+      );
+    }
+
+    document
+      .getElementById(
+        'contactForm'
+      )
+      .addEventListener(
+        'submit',
+        function (event) {
+          event.preventDefault();
+
+          if (!validateContactForm()) {
+            showToast(
+              '입력한 문의 내용을 확인해주세요.'
+            );
+
+            return;
+          }
+
+          const ticket =
+            'PZ-' +
+            Date.now()
+              .toString()
+              .slice(-7);
+
+          const inquiry = {
+            ticket: ticket,
+
+            name:
+              document
+                .getElementById(
+                  'contactName'
+                )
+                .value
+                .trim(),
+
+            email:
+              document
+                .getElementById(
+                  'contactEmail'
+                )
+                .value
+                .trim(),
+
+            category:
+              document
+                .getElementById(
+                  'contactCategory'
+                )
+                .value,
+
+            title:
+              document
+                .getElementById(
+                  'contactTitle'
+                )
+                .value
+                .trim(),
+
+            message:
+              document
+                .getElementById(
+                  'contactMessage'
+                )
+                .value
+                .trim(),
+
+            submittedAt:
+              new Date().toISOString()
+          };
+
+          const previousInquiries =
+            JSON.parse(
+              localStorage.getItem(
+                'puzzliCustomerInquiries'
+              ) || '[]'
+            );
+
+          previousInquiries.push(
+            inquiry
+          );
+
+          localStorage.setItem(
+            'puzzliCustomerInquiries',
+            JSON.stringify(
+              previousInquiries
+            )
+          );
+
+          document
+            .getElementById(
+              'ticketNumber'
+            )
+            .textContent =
+              ticket;
+
+          openSuccessModal();
+
+          this.reset();
+
+          document
+            .getElementById(
+              'messageLength'
+            )
+            .textContent =
+              '0 / 500';
+        }
+      );
+
+    /* 문의하기 바로가기 */
+    document
+      .getElementById(
+        'contactShortcutButton'
+      )
+      .addEventListener(
+        'click',
+        function () {
+          document
+            .getElementById(
+              'contactSection'
+            )
+            .scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+        }
+      );
+
+    /* =========================
+       문의 완료 모달
+    ========================== */
+
+    function openSuccessModal() {
+      const modal =
+        document.getElementById(
+          'successModal'
+        );
+
+      modal.classList.remove(
+        'hidden'
+      );
+
+      modal.classList.add(
+        'flex'
+      );
+    }
+
+    function closeSuccessModal() {
+      const modal =
+        document.getElementById(
+          'successModal'
+        );
+
+      modal.classList.add(
+        'hidden'
+      );
+
+      modal.classList.remove(
+        'flex'
+      );
+    }
+
+    document
+      .getElementById(
+        'closeSuccessModal'
+      )
+      .addEventListener(
+        'click',
+        closeSuccessModal
+      );
+
+    document
+      .getElementById(
+        'successModal'
+      )
+      .addEventListener(
+        'click',
+        function (event) {
+          if (event.target === this) {
+            closeSuccessModal();
+          }
+        }
+      );
+
+    /* =========================
+       알림 및 프로필
+    ========================== */
+
+    document
+      .getElementById(
+        'notificationButton'
+      )
+      .addEventListener(
+        'click',
+        function () {
+          document
+            .getElementById(
+              'notificationPanel'
+            )
+            .classList.toggle(
+              'hidden'
+            );
+
+          document
+            .getElementById(
+              'profilePanel'
+            )
+            .classList.add(
+              'hidden'
+            );
+        }
+      );
+
+    document
+      .getElementById(
+        'profileButton'
+      )
+      .addEventListener(
+        'click',
+        function () {
+          document
+            .getElementById(
+              'profilePanel'
+            )
+            .classList.toggle(
+              'hidden'
+            );
+
+          document
+            .getElementById(
+              'notificationPanel'
+            )
+            .classList.add(
+              'hidden'
+            );
+        }
+      );
+
+    /* 로그아웃 */
+    function handleLogout() {
+      showToast(
+        '로그아웃 기능은 로그인 연동 후 사용할 수 있습니다.'
+      );
+    }
+
+    document
+      .getElementById(
+        'sidebarLogoutButton'
+      )
+      .addEventListener(
+        'click',
+        handleLogout
+      );
+
+    document
+      .getElementById(
+        'profileLogoutButton'
+      )
+      .addEventListener(
+        'click',
+        handleLogout
+      );
+
+    /* =========================
+       토스트
+    ========================== */
+
+    function showToast(message) {
+      const toast =
+        document.getElementById(
+          'toast'
+        );
+
+      toast.textContent = message;
+
+      toast.classList.add(
+        'is-visible'
+      );
+
+      clearTimeout(
+        window.toastTimer
+      );
+
+      window.toastTimer =
+        setTimeout(
+          function () {
+            toast.classList.remove(
+              'is-visible'
+            );
+          },
+          1800
+        );
+    }
+
+    renderFaqs();
+  </script>
+</body>
+</html>

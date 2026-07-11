@@ -1,0 +1,1550 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>PUZZLI | 새 일정 만들기</title>
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: [
+              'Hanken Grotesk',
+              'Noto Sans KR',
+              'sans-serif'
+            ]
+          },
+
+          colors: {
+            primary: '#4F46E5',
+            secondary: '#6366F1',
+            accent: '#818CF8'
+          },
+
+          boxShadow: {
+            card: '0 12px 30px rgba(15, 23, 42, 0.06)'
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body {
+      font-family:
+        'Hanken Grotesk',
+        'Noto Sans KR',
+        sans-serif;
+    }
+
+    .toast {
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, 12px);
+      transition:
+        opacity 0.2s ease,
+        transform 0.2s ease;
+    }
+
+    .toast.is-visible {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    .calendar-day {
+      min-height: 40px;
+    }
+
+    .calendar-day.is-selected {
+      background: #4F46E5;
+      color: white;
+      font-weight: 700;
+    }
+
+    .calendar-day.is-range {
+      background: #EEF2FF;
+      color: #312E81;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 999px;
+    }
+  </style>
+</head>
+
+<body class="bg-slate-50 flex h-screen overflow-hidden text-slate-900">
+
+  <!-- ==================================================
+       왼쪽 사이드바
+       index.html 대시보드와 동일
+  =================================================== -->
+  <aside
+    class="hidden md:flex w-64 shrink-0 bg-white border-r border-slate-200 flex-col h-full"
+  >
+    <!-- 로고 -->
+    <div class="p-6">
+      <a
+        href="index.html"
+        class="flex items-center gap-2"
+      >
+        <div
+          class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center"
+        >
+          <div class="grid grid-cols-2 gap-0.5">
+            <div class="w-2 h-2 bg-white rounded-sm"></div>
+            <div class="w-2 h-2 bg-white rounded-sm"></div>
+            <div class="w-2 h-2 bg-white rounded-sm"></div>
+
+            <div
+              class="w-2 h-2 bg-white rounded-sm opacity-50"
+            ></div>
+          </div>
+        </div>
+
+        <span
+          class="text-2xl font-bold text-indigo-950 tracking-tight"
+        >
+          PUZZLI
+        </span>
+      </a>
+    </div>
+
+    <!-- 주요 메뉴 -->
+    <nav class="flex-1 px-4 space-y-2 mt-4">
+
+      <!-- 대시보드 -->
+      <a
+        href="index.html"
+        class="flex items-center gap-3 p-3 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors"
+      >
+        <svg
+          class="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+          ></path>
+        </svg>
+
+        <span class="font-medium">
+          대시보드
+        </span>
+      </a>
+
+      <!-- 일정 -->
+      <a
+        href="view-schedule.html"
+        class="flex items-center gap-3 p-3 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors"
+      >
+        <svg
+          class="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+          ></path>
+        </svg>
+
+        <span>일정</span>
+      </a>
+
+      <!-- 팀 -->
+      <a
+        href="team.html"
+        class="flex items-center gap-3 p-3 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors"
+      >
+        <svg
+          class="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656-.126-1.283-.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+          ></path>
+        </svg>
+
+        <span>팀</span>
+      </a>
+
+      <!-- 환경 설정 -->
+      <a
+        href="Environment-setting.html"
+        class="flex items-center gap-3 p-3 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors"
+      >
+        <svg
+          class="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+          ></path>
+
+          <path
+            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+          ></path>
+        </svg>
+
+        <span>환경 설정</span>
+      </a>
+    </nav>
+
+    <!-- 사이드바 하단 -->
+    <div class="p-4 mt-auto border-t border-slate-100">
+
+      <!-- 현재 화면 -->
+      <button
+        type="button"
+        class="w-full flex items-center justify-center gap-2 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-indigo-700 transition-colors"
+      >
+        <span class="text-xl leading-none">
+          +
+        </span>
+
+        새 일정 만들기
+      </button>
+
+      <div
+        class="mt-4 pt-4 border-t border-slate-100 space-y-4"
+      >
+        <!-- 고객 센터 -->
+        <a
+          href="customer-center.html"
+          class="flex items-center gap-3 p-3 rounded-xl text-sm font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+        >
+          <svg
+            class="w-5 h-5 shrink-0"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+            ></path>
+          </svg>
+
+          <span>고객 센터</span>
+        </a>
+
+        <!-- 로그아웃 -->
+        <button
+          type="button"
+          onclick="window.location.href='logout.html'"
+          class="w-full flex items-center gap-3 p-3 rounded-xl text-sm font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+        >
+          <svg
+            class="w-5 h-5 shrink-0"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+            ></path>
+          </svg>
+
+          <span>로그아웃</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ==================================================
+       오른쪽 메인 영역
+  =================================================== -->
+  <main
+    class="flex-1 flex flex-col h-full min-w-0 bg-slate-50"
+  >
+
+    <!-- ==================================================
+         상단 헤더
+  =================================================== -->
+    <header
+      class="h-16 shrink-0 bg-white border-b border-slate-200 flex items-center justify-between px-5 md:px-8"
+    >
+      <!-- 왼쪽 제목 -->
+      <div>
+        <p class="text-xs font-semibold text-slate-400">
+          일정 조율
+        </p>
+
+        <h1 class="text-lg font-bold text-slate-900">
+          새 일정 만들기
+        </h1>
+      </div>
+
+      <!-- 오른쪽 메뉴 -->
+      <div class="flex items-center gap-4 md:gap-6">
+
+        <!-- 검색 -->
+        <div class="relative hidden sm:block">
+          <input
+            id="meetingSearch"
+            type="search"
+            placeholder="회의 검색..."
+            class="bg-slate-100 border-none rounded-full py-2 pl-10 pr-4 text-sm w-64 focus:ring-2 focus:ring-primary/20"
+          >
+
+          <svg
+            class="w-4 h-4 text-slate-400 absolute left-4 top-2.5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+            ></path>
+          </svg>
+        </div>
+
+        <!-- 알림 -->
+        <div
+          id="notificationWrapper"
+          class="relative flex items-center"
+        >
+          <button
+            id="notificationButton"
+            type="button"
+            class="relative flex items-center justify-center text-slate-400 hover:text-slate-700 transition-colors"
+            aria-label="알림 열기"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+              ></path>
+            </svg>
+
+            <span
+              id="notificationBadge"
+              class="absolute -right-1.5 -top-1.5 min-w-[18px] h-[18px] rounded-full bg-red-500 px-1 text-[10px] font-bold text-white flex items-center justify-center border-2 border-white"
+            >
+              3
+            </span>
+          </button>
+
+          <!-- 알림창 -->
+          <div
+            id="notificationPanel"
+            class="hidden absolute right-0 top-11 z-50 w-[360px] max-w-[calc(100vw-32px)] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
+          >
+            <div
+              class="flex items-center justify-between border-b border-slate-100 px-5 py-4"
+            >
+              <div>
+                <h3 class="font-bold text-slate-900">
+                  알림
+                </h3>
+
+                <p class="mt-0.5 text-xs text-slate-400">
+                  새로운 일정과 초대 요청을 확인하세요.
+                </p>
+              </div>
+
+              <button
+                id="markAllReadButton"
+                type="button"
+                class="text-xs font-bold text-primary hover:underline"
+              >
+                모두 읽음
+              </button>
+            </div>
+
+            <div class="max-h-[420px] overflow-y-auto">
+
+              <!-- 일정 초대 -->
+              <button
+                type="button"
+                data-notification-link="available-time.html"
+                class="notification-item w-full border-b border-slate-100 bg-indigo-50/60 px-5 py-4 text-left hover:bg-indigo-50 transition-colors"
+              >
+                <div class="flex items-start gap-3">
+                  <div
+                    class="w-10 h-10 shrink-0 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold"
+                  >
+                    하
+                  </div>
+
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-start gap-2">
+                      <p
+                        class="flex-1 text-sm leading-6 text-slate-700"
+                      >
+                        <strong class="text-slate-900">
+                          하동훈 님
+                        </strong>이
+
+                        <strong class="text-primary">
+                          기획 회의
+                        </strong>
+
+                        일정에 초대했습니다.
+                      </p>
+
+                      <span
+                        class="notification-dot mt-2 w-2 h-2 shrink-0 rounded-full bg-primary"
+                      ></span>
+                    </div>
+
+                    <div
+                      class="mt-2 flex items-center justify-between"
+                    >
+                      <span class="text-xs text-slate-400">
+                        5분 전
+                      </span>
+
+                      <span class="text-xs font-bold text-primary">
+                        응답하기 →
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </button>
+
+              <!-- 공동 주최 -->
+              <button
+                type="button"
+                data-notification-link="index.html"
+                class="notification-item w-full border-b border-slate-100 bg-indigo-50/60 px-5 py-4 text-left hover:bg-indigo-50 transition-colors"
+              >
+                <div class="flex items-start gap-3">
+                  <div
+                    class="w-10 h-10 shrink-0 rounded-full bg-violet-100 text-violet-600 flex items-center justify-center font-bold"
+                  >
+                    송
+                  </div>
+
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-start gap-2">
+                      <p
+                        class="flex-1 text-sm leading-6 text-slate-700"
+                      >
+                        <strong class="text-slate-900">
+                          송지효 님
+                        </strong>이
+
+                        <strong class="text-primary">
+                          고객 피드백 분석 회의
+                        </strong>의 공동 주최자로 초대했습니다.
+                      </p>
+
+                      <span
+                        class="notification-dot mt-2 w-2 h-2 shrink-0 rounded-full bg-primary"
+                      ></span>
+                    </div>
+
+                    <div
+                      class="mt-2 flex items-center justify-between"
+                    >
+                      <span class="text-xs text-slate-400">
+                        18분 전
+                      </span>
+
+                      <span class="text-xs font-bold text-primary">
+                        요청 확인 →
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </button>
+
+              <!-- 일정 확정 -->
+              <button
+                type="button"
+                data-notification-link="view-schedule.html"
+                class="notification-item w-full bg-indigo-50/60 px-5 py-4 text-left hover:bg-indigo-50 transition-colors"
+              >
+                <div class="flex items-start gap-3">
+                  <div
+                    class="w-10 h-10 shrink-0 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold"
+                  >
+                    전
+                  </div>
+
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-start gap-2">
+                      <p
+                        class="flex-1 text-sm leading-6 text-slate-700"
+                      >
+                        <strong class="text-slate-900">
+                          전소민 님
+                        </strong>이
+
+                        <strong class="text-primary">
+                          디자인 시스템 리뷰
+                        </strong>
+
+                        일정을 확정했습니다.
+                      </p>
+
+                      <span
+                        class="notification-dot mt-2 w-2 h-2 shrink-0 rounded-full bg-primary"
+                      ></span>
+                    </div>
+
+                    <div
+                      class="mt-2 flex items-center justify-between"
+                    >
+                      <span class="text-xs text-slate-400">
+                        1시간 전
+                      </span>
+
+                      <span class="text-xs font-bold text-primary">
+                        일정 보기 →
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 고객 센터 -->
+        <button
+          type="button"
+          onclick="window.location.href='customer-center.html'"
+          class="text-slate-400 hover:text-slate-700 transition-colors"
+          aria-label="고객 센터"
+        >
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+            ></path>
+          </svg>
+        </button>
+
+        <!-- 프로필 -->
+        <div
+          id="profileWrapper"
+          class="relative"
+        >
+          <button
+            id="profileButton"
+            type="button"
+            class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 border border-indigo-200 flex items-center justify-center font-bold text-sm"
+          >
+            유
+          </button>
+
+          <div
+            id="profilePanel"
+            class="hidden absolute right-0 top-11 z-40 w-52 rounded-2xl border border-slate-200 bg-white p-3 shadow-xl"
+          >
+            <div
+              class="px-3 py-2 border-b border-slate-100"
+            >
+              <p class="text-sm font-bold text-slate-900">
+                유재석
+              </p>
+
+              <p class="mt-1 text-xs text-slate-400">
+                jaeseokyoo@puzzli.io
+              </p>
+            </div>
+
+            <a
+              href="Environment-setting.html"
+              class="block rounded-xl px-3 py-2 mt-2 text-sm text-slate-600 hover:bg-slate-50"
+            >
+              환경 설정
+            </a>
+
+            <button
+              type="button"
+              onclick="window.location.href='logout.html'"
+              class="w-full text-left rounded-xl px-3 py-2 text-sm text-slate-600 hover:bg-slate-50"
+            >
+              로그아웃
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ==================================================
+         스크롤 콘텐츠
+  =================================================== -->
+    <div
+      class="flex-1 overflow-y-auto custom-scrollbar"
+    >
+      <div
+        class="max-w-[1440px] mx-auto p-5 md:p-8"
+      >
+
+        <!-- 진행 단계 -->
+        <section class="mb-8">
+          <div
+            class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-4"
+          >
+            <div>
+              <h2
+                class="text-2xl font-bold text-indigo-950"
+              >
+                회의 정보를 입력해주세요
+              </h2>
+
+              <p class="mt-2 text-sm text-slate-500">
+                회의 정보와 참석 조건을 입력하면 모두가 가능한 시간을 찾을 수 있어요.
+              </p>
+            </div>
+
+            <span
+              class="text-sm font-medium text-slate-400"
+            >
+              STEP
+
+              <span class="text-primary font-bold">
+                1
+              </span>
+
+              / 3
+            </span>
+          </div>
+
+          <div
+            class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden"
+          >
+            <div
+              class="bg-primary h-full rounded-full"
+              style="width: 33.33%;"
+            ></div>
+          </div>
+
+          <div
+            class="flex justify-between mt-3 text-xs font-semibold uppercase tracking-wider"
+          >
+            <span class="text-primary">
+              회의 정보 입력
+            </span>
+
+            <span class="text-slate-400">
+              참석자 설정
+            </span>
+
+            <span class="text-slate-400">
+              투표 생성 완료
+            </span>
+          </div>
+        </section>
+
+        <!-- 일정 생성 폼 -->
+        <form
+          id="scheduleForm"
+          class="bg-white rounded-2xl border border-slate-200 p-6 md:p-10 shadow-sm"
+        >
+          <div class="space-y-10">
+
+            <!-- 회의 제목 -->
+            <div class="space-y-3">
+              <label
+                for="meetingTitle"
+                class="block text-sm font-bold text-slate-700"
+              >
+                회의 제목
+              </label>
+
+              <input
+                id="meetingTitle"
+                type="text"
+                placeholder="예: 팀 주간 성과 공유 및 기획 회의"
+                class="w-full rounded-xl border-slate-200 p-4 text-slate-900 placeholder-slate-400 focus:border-primary focus:ring-primary/20"
+              >
+            </div>
+
+            <!-- 소요시간 / 장소 -->
+            <div
+              class="grid grid-cols-1 lg:grid-cols-2 gap-8"
+            >
+              <!-- 소요시간 -->
+              <div class="space-y-3">
+                <label
+                  for="meetingDuration"
+                  class="block text-sm font-bold text-slate-700"
+                >
+                  소요 시간
+                </label>
+
+                <select
+                  id="meetingDuration"
+                  class="w-full rounded-xl border-slate-200 p-4 text-slate-900 focus:border-primary focus:ring-primary/20"
+                >
+                  <option value="30">
+                    30분
+                  </option>
+
+                  <option value="60" selected>
+                    1시간
+                  </option>
+
+                  <option value="90">
+                    1시간 30분
+                  </option>
+
+                  <option value="120">
+                    2시간
+                  </option>
+                </select>
+              </div>
+
+              <!-- 장소 -->
+              <div class="space-y-3">
+                <label
+                  class="block text-sm font-bold text-slate-700"
+                >
+                  장소 및 방식
+                </label>
+
+                <div
+                  class="flex border border-slate-200 rounded-xl overflow-hidden p-1 bg-slate-50"
+                >
+                  <button
+                    id="onlineButton"
+                    type="button"
+                    data-meeting-type="online"
+                    class="meeting-type-button flex-1 flex items-center justify-center gap-2 rounded-lg border border-indigo-100 bg-white py-3 font-semibold text-primary shadow-sm"
+                  >
+                    <svg
+                      class="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                      ></path>
+                    </svg>
+
+                    온라인
+                  </button>
+
+                  <button
+                    id="offlineButton"
+                    type="button"
+                    data-meeting-type="offline"
+                    class="meeting-type-button flex-1 flex items-center justify-center gap-2 rounded-lg py-3 font-semibold text-slate-500 hover:bg-slate-100 transition-colors"
+                  >
+                    <svg
+                      class="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                      ></path>
+
+                      <path
+                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                      ></path>
+                    </svg>
+
+                    오프라인
+                  </button>
+                </div>
+
+                <div
+                  id="locationField"
+                  class="hidden mt-3"
+                >
+                  <input
+                    id="meetingLocation"
+                    type="text"
+                    placeholder="예: 제2회의실"
+                    class="w-full rounded-xl border-slate-200 p-4 text-sm focus:border-primary focus:ring-primary/20"
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- 일정 범위 -->
+            <div class="space-y-3">
+              <label
+                class="block text-sm font-bold text-slate-700"
+              >
+                투표 일정 범위
+              </label>
+
+              <div
+                class="grid grid-cols-1 xl:grid-cols-[420px_minmax(0,1fr)] gap-8"
+              >
+                <!-- 달력 -->
+                <div
+                  class="rounded-2xl border border-slate-200 bg-white p-6"
+                >
+                  <div
+                    class="flex items-center justify-between mb-6"
+                  >
+                    <h3 class="font-bold text-slate-900">
+                      2026년 7월
+                    </h3>
+
+                    <div class="flex gap-2">
+                      <button
+                        type="button"
+                        class="w-8 h-8 rounded-lg text-slate-400 hover:bg-slate-100 flex items-center justify-center"
+                        aria-label="이전 달"
+                      >
+                        <svg
+                          class="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            d="M15 19l-7-7 7-7"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                          ></path>
+                        </svg>
+                      </button>
+
+                      <button
+                        type="button"
+                        class="w-8 h-8 rounded-lg text-slate-400 hover:bg-slate-100 flex items-center justify-center"
+                        aria-label="다음 달"
+                      >
+                        <svg
+                          class="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            d="M9 5l7 7-7 7"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                          ></path>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div
+                    class="grid grid-cols-7 mb-3 text-center text-[11px] font-bold text-slate-400"
+                  >
+                    <span>일</span>
+                    <span>월</span>
+                    <span>화</span>
+                    <span>수</span>
+                    <span>목</span>
+                    <span>금</span>
+                    <span>토</span>
+                  </div>
+
+                  <div
+                    class="grid grid-cols-7 gap-y-1 text-center text-sm"
+                  >
+                    <button
+                      type="button"
+                      class="calendar-day py-2 text-slate-300"
+                      disabled
+                    >
+                      28
+                    </button>
+
+                    <button
+                      type="button"
+                      class="calendar-day py-2 text-slate-300"
+                      disabled
+                    >
+                      29
+                    </button>
+
+                    <button
+                      type="button"
+                      class="calendar-day py-2 text-slate-300"
+                      disabled
+                    >
+                      30
+                    </button>
+
+                    <button type="button" class="calendar-day py-2 rounded-lg">1</button>
+                    <button type="button" class="calendar-day py-2 rounded-lg">2</button>
+                    <button type="button" class="calendar-day py-2 rounded-lg">3</button>
+                    <button type="button" class="calendar-day py-2 rounded-lg">4</button>
+                    <button type="button" class="calendar-day py-2 rounded-lg">5</button>
+                    <button type="button" class="calendar-day py-2 rounded-lg">6</button>
+                    <button type="button" class="calendar-day py-2 rounded-lg">7</button>
+                    <button type="button" class="calendar-day py-2 rounded-lg">8</button>
+                    <button type="button" class="calendar-day py-2 rounded-lg">9</button>
+                    <button type="button" class="calendar-day py-2 rounded-lg">10</button>
+                    <button type="button" class="calendar-day py-2 rounded-lg">11</button>
+                    <button type="button" class="calendar-day py-2 rounded-lg">12</button>
+
+                    <button
+                      type="button"
+                      class="calendar-day is-selected py-2 rounded-l-lg"
+                    >
+                      13
+                    </button>
+
+                    <button
+                      type="button"
+                      class="calendar-day is-range py-2"
+                    >
+                      14
+                    </button>
+
+                    <button
+                      type="button"
+                      class="calendar-day is-range py-2"
+                    >
+                      15
+                    </button>
+
+                    <button
+                      type="button"
+                      class="calendar-day is-range py-2"
+                    >
+                      16
+                    </button>
+
+                    <button
+                      type="button"
+                      class="calendar-day is-selected py-2 rounded-r-lg"
+                    >
+                      17
+                    </button>
+
+                    <button type="button" class="calendar-day py-2 rounded-lg">18</button>
+                    <button type="button" class="calendar-day py-2 rounded-lg">19</button>
+                    <button type="button" class="calendar-day py-2 rounded-lg">20</button>
+                    <button type="button" class="calendar-day py-2 rounded-lg">21</button>
+                    <button type="button" class="calendar-day py-2 rounded-lg">22</button>
+                    <button type="button" class="calendar-day py-2 rounded-lg">23</button>
+                    <button type="button" class="calendar-day py-2 rounded-lg">24</button>
+                    <button type="button" class="calendar-day py-2 rounded-lg">25</button>
+                    <button type="button" class="calendar-day py-2 rounded-lg">26</button>
+                    <button type="button" class="calendar-day py-2 rounded-lg">27</button>
+                    <button type="button" class="calendar-day py-2 rounded-lg">28</button>
+                    <button type="button" class="calendar-day py-2 rounded-lg">29</button>
+                    <button type="button" class="calendar-day py-2 rounded-lg">30</button>
+                    <button type="button" class="calendar-day py-2 rounded-lg">31</button>
+
+                    <button
+                      type="button"
+                      class="calendar-day py-2 text-slate-300"
+                      disabled
+                    >
+                      1
+                    </button>
+                  </div>
+                </div>
+
+                <!-- 선택 범위 -->
+                <div class="flex flex-col">
+                  <div
+                    class="rounded-2xl border border-indigo-100 bg-indigo-50 p-6"
+                  >
+                    <p
+                      class="text-sm font-bold text-slate-500"
+                    >
+                      선택된 범위
+                    </p>
+
+                    <p
+                      class="mt-3 text-lg font-bold text-indigo-950"
+                    >
+                      2026년 7월 13일 (월) — 7월 17일 (금)
+                    </p>
+
+                    <p class="mt-2 text-sm text-slate-600">
+                      총 5일간의 가능한 시간을 조사합니다.
+                    </p>
+                  </div>
+
+                  <label
+                    class="flex items-center gap-3 mt-4 cursor-pointer"
+                  >
+                    <input
+                      id="excludeWeekend"
+                      type="checkbox"
+                      checked
+                      class="w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary"
+                    >
+
+                    <span class="font-medium text-slate-700">
+                      주말 제외하고 평일만 선택
+                    </span>
+                  </label>
+
+                  <div
+                    class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8"
+                  >
+                    <div
+                      class="rounded-xl border border-slate-100 bg-white p-4 shadow-sm"
+                    >
+                      <h4
+                        class="text-xs font-bold text-primary"
+                      >
+                        효과적인 회의 제목
+                      </h4>
+
+                      <p
+                        class="mt-2 text-xs leading-5 text-slate-500"
+                      >
+                        목적이 명확한 제목은 참석자가 일정을 빠르게 이해할 수 있게 해줍니다.
+                      </p>
+                    </div>
+
+                    <div
+                      class="rounded-xl border border-slate-100 bg-white p-4 shadow-sm"
+                    >
+                      <h4
+                        class="text-xs font-bold text-primary"
+                      >
+                        권장 일정 범위
+                      </h4>
+
+                      <p
+                        class="mt-2 text-xs leading-5 text-slate-500"
+                      >
+                        원활한 응답을 위해 후보 기간은 1주일 이내로 설정하는 것이 좋습니다.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 하단 버튼 -->
+            <div
+              class="flex items-center justify-between border-t border-slate-100 pt-8"
+            >
+              <a
+                href="index.html"
+                class="rounded-xl border border-slate-200 px-8 py-3 font-bold text-slate-600 hover:bg-slate-50 transition-colors"
+              >
+                취소
+              </a>
+
+              <button
+                type="submit"
+                class="flex items-center gap-2 rounded-xl bg-primary px-10 py-3 font-bold text-white shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-colors"
+              >
+                다음 단계로
+
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M9 5l7 7-7 7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <!-- 토스트 -->
+  <div
+    id="toast"
+    class="toast fixed bottom-6 left-1/2 z-[100] rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-xl"
+  ></div>
+
+  <script>
+    let meetingType = 'online';
+
+    const meetingTypeButtons =
+      document.querySelectorAll(
+        '.meeting-type-button'
+      );
+
+    const locationField =
+      document.getElementById(
+        'locationField'
+      );
+
+    meetingTypeButtons.forEach(
+      function (button) {
+        button.addEventListener(
+          'click',
+          function () {
+            meetingType =
+              button.dataset.meetingType;
+
+            meetingTypeButtons.forEach(
+              function (item) {
+                item.classList.remove(
+                  'border',
+                  'border-indigo-100',
+                  'bg-white',
+                  'text-primary',
+                  'shadow-sm'
+                );
+
+                item.classList.add(
+                  'text-slate-500'
+                );
+              }
+            );
+
+            button.classList.remove(
+              'text-slate-500'
+            );
+
+            button.classList.add(
+              'border',
+              'border-indigo-100',
+              'bg-white',
+              'text-primary',
+              'shadow-sm'
+            );
+
+            locationField.classList.toggle(
+              'hidden',
+              meetingType !== 'offline'
+            );
+          }
+        );
+      }
+    );
+
+    /* 폼 제출 */
+    document
+      .getElementById(
+        'scheduleForm'
+      )
+      .addEventListener(
+        'submit',
+        function (event) {
+          event.preventDefault();
+
+          const meetingTitle =
+            document
+              .getElementById(
+                'meetingTitle'
+              )
+              .value
+              .trim();
+
+          const meetingDuration =
+            document
+              .getElementById(
+                'meetingDuration'
+              )
+              .value;
+
+          const meetingLocation =
+            document
+              .getElementById(
+                'meetingLocation'
+              )
+              .value
+              .trim();
+
+          if (!meetingTitle) {
+            showToast(
+              '회의 제목을 입력해주세요.'
+            );
+
+            document
+              .getElementById(
+                'meetingTitle'
+              )
+              .focus();
+
+            return;
+          }
+
+          if (
+            meetingType === 'offline' &&
+            !meetingLocation
+          ) {
+            showToast(
+              '오프라인 회의 장소를 입력해주세요.'
+            );
+
+            document
+              .getElementById(
+                'meetingLocation'
+              )
+              .focus();
+
+            return;
+          }
+
+          localStorage.setItem(
+            'puzzliScheduleDraft',
+            JSON.stringify({
+              title: meetingTitle,
+              duration: meetingDuration,
+              type: meetingType,
+              location:
+                meetingType === 'offline'
+                  ? meetingLocation
+                  : '온라인',
+              startDate: '2026-07-13',
+              endDate: '2026-07-17',
+              excludeWeekend:
+                document
+                  .getElementById(
+                    'excludeWeekend'
+                  )
+                  .checked
+            })
+          );
+
+          window.location.href =
+            'attendee-setting.html';
+        }
+      );
+
+    /* 검색창 */
+    const searchInput =
+      document.getElementById(
+        'meetingSearch'
+      );
+
+    searchInput.addEventListener(
+      'keydown',
+      function (event) {
+        if (event.key !== 'Enter') {
+          return;
+        }
+
+        const keyword =
+          searchInput.value.trim();
+
+        if (!keyword) {
+          showToast(
+            '검색어를 입력해주세요.'
+          );
+
+          return;
+        }
+
+        showToast(
+          '"' +
+          keyword +
+          '" 검색 결과를 확인합니다.'
+        );
+      }
+    );
+
+    /* 알림 */
+    const notificationWrapper =
+      document.getElementById(
+        'notificationWrapper'
+      );
+
+    const notificationButton =
+      document.getElementById(
+        'notificationButton'
+      );
+
+    const notificationPanel =
+      document.getElementById(
+        'notificationPanel'
+      );
+
+    const notificationBadge =
+      document.getElementById(
+        'notificationBadge'
+      );
+
+    const markAllReadButton =
+      document.getElementById(
+        'markAllReadButton'
+      );
+
+    /* 프로필 */
+    const profileWrapper =
+      document.getElementById(
+        'profileWrapper'
+      );
+
+    const profileButton =
+      document.getElementById(
+        'profileButton'
+      );
+
+    const profilePanel =
+      document.getElementById(
+        'profilePanel'
+      );
+
+    notificationButton.addEventListener(
+      'click',
+      function (event) {
+        event.stopPropagation();
+
+        profilePanel.classList.add(
+          'hidden'
+        );
+
+        notificationPanel.classList.toggle(
+          'hidden'
+        );
+      }
+    );
+
+    profileButton.addEventListener(
+      'click',
+      function (event) {
+        event.stopPropagation();
+
+        notificationPanel.classList.add(
+          'hidden'
+        );
+
+        profilePanel.classList.toggle(
+          'hidden'
+        );
+      }
+    );
+
+    document
+      .querySelectorAll(
+        '.notification-item'
+      )
+      .forEach(
+        function (item) {
+          item.addEventListener(
+            'click',
+            function () {
+              const dot =
+                item.querySelector(
+                  '.notification-dot'
+                );
+
+              if (dot) {
+                dot.remove();
+
+                item.classList.remove(
+                  'bg-indigo-50/60'
+                );
+
+                updateNotificationCount();
+              }
+
+              const link =
+                item.dataset.notificationLink;
+
+              if (link) {
+                window.location.href =
+                  link;
+              }
+            }
+          );
+        }
+      );
+
+    markAllReadButton.addEventListener(
+      'click',
+      function (event) {
+        event.stopPropagation();
+
+        document
+          .querySelectorAll(
+            '.notification-dot'
+          )
+          .forEach(
+            function (dot) {
+              dot.remove();
+            }
+          );
+
+        document
+          .querySelectorAll(
+            '.notification-item'
+          )
+          .forEach(
+            function (item) {
+              item.classList.remove(
+                'bg-indigo-50/60'
+              );
+            }
+          );
+
+        updateNotificationCount();
+
+        showToast(
+          '모든 알림을 읽음 처리했습니다.'
+        );
+      }
+    );
+
+    function updateNotificationCount() {
+      const count =
+        document.querySelectorAll(
+          '.notification-dot'
+        ).length;
+
+      if (count === 0) {
+        notificationBadge.classList.add(
+          'hidden'
+        );
+
+        return;
+      }
+
+      notificationBadge.textContent =
+        count;
+
+      notificationBadge.classList.remove(
+        'hidden'
+      );
+    }
+
+    document.addEventListener(
+      'click',
+      function (event) {
+        if (
+          !notificationWrapper.contains(
+            event.target
+          )
+        ) {
+          notificationPanel.classList.add(
+            'hidden'
+          );
+        }
+
+        if (
+          !profileWrapper.contains(
+            event.target
+          )
+        ) {
+          profilePanel.classList.add(
+            'hidden'
+          );
+        }
+      }
+    );
+
+    document.addEventListener(
+      'keydown',
+      function (event) {
+        if (event.key === 'Escape') {
+          notificationPanel.classList.add(
+            'hidden'
+          );
+
+          profilePanel.classList.add(
+            'hidden'
+          );
+        }
+      }
+    );
+
+    function showToast(message) {
+      const toast =
+        document.getElementById(
+          'toast'
+        );
+
+      toast.textContent =
+        message;
+
+      toast.classList.add(
+        'is-visible'
+      );
+
+      clearTimeout(
+        window.toastTimer
+      );
+
+      window.toastTimer =
+        setTimeout(
+          function () {
+            toast.classList.remove(
+              'is-visible'
+            );
+          },
+          1800
+        );
+    }
+
+    updateNotificationCount();
+  </script>
+</body>
+</html>

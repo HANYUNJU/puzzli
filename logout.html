@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>PUZZLI - 로그아웃</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: [
+              'Hanken Grotesk',
+              'Noto Sans KR',
+              'sans-serif'
+            ]
+          },
+
+          colors: {
+            primary: '#4F46E5'
+          },
+
+          boxShadow: {
+            card: '0 24px 60px rgba(15, 23, 42, 0.12)'
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body {
+      font-family:
+        'Hanken Grotesk',
+        'Noto Sans KR',
+        sans-serif;
+    }
+
+    .screen {
+      display: none;
+    }
+
+    .screen.is-active {
+      display: block;
+    }
+
+    .spinner {
+      width: 22px;
+      height: 22px;
+      border: 3px solid rgba(255, 255, 255, 0.35);
+      border-top-color: #ffffff;
+      border-radius: 9999px;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+
+<body
+  class="min-h-screen bg-slate-50 text-slate-900 flex items-center justify-center p-5"
+>
+
+  <!-- 배경 장식 -->
+  <div
+    class="fixed inset-0 overflow-hidden pointer-events-none"
+  >
+    <div
+      class="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-indigo-100 blur-3xl opacity-70"
+    ></div>
+
+    <div
+      class="absolute -bottom-40 -right-32 w-[440px] h-[440px] rounded-full bg-violet-100 blur-3xl opacity-70"
+    ></div>
+  </div>
+
+  <main class="relative w-full max-w-md">
+
+    <!-- 로고 -->
+    <a
+      href="index.html"
+      class="flex items-center justify-center gap-2 mb-8"
+    >
+      <div
+        class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200"
+      >
+        <div class="grid grid-cols-2 gap-0.5">
+          <div class="w-2.5 h-2.5 bg-white rounded-sm"></div>
+          <div class="w-2.5 h-2.5 bg-white rounded-sm"></div>
+          <div class="w-2.5 h-2.5 bg-white rounded-sm"></div>
+
+          <div
+            class="w-2.5 h-2.5 bg-white rounded-sm opacity-50"
+          ></div>
+        </div>
+      </div>
+
+      <span
+        class="text-3xl font-extrabold tracking-tight text-indigo-950"
+      >
+        PUZZLI
+      </span>
+    </a>
+
+    <!-- 카드 -->
+    <section
+      class="rounded-3xl border border-slate-200 bg-white p-7 md:p-9 text-center shadow-card"
+    >
+
+      <!-- 로그아웃 확인 화면 -->
+      <div
+        id="confirmScreen"
+        class="screen is-active"
+      >
+        <div
+          class="mx-auto w-16 h-16 rounded-2xl bg-indigo-50 text-primary flex items-center justify-center"
+        >
+          <svg
+            class="w-8 h-8"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+            ></path>
+          </svg>
+        </div>
+
+        <h1
+          class="mt-6 text-2xl md:text-3xl font-bold text-slate-900"
+        >
+          로그아웃하시겠어요?
+        </h1>
+
+        <p
+          class="mt-3 text-sm leading-6 text-slate-500"
+        >
+          로그아웃하면 현재 계정의 일정과 알림을 확인하려면 다시 로그인해야 합니다.
+        </p>
+
+        <!-- 사용자 정보 -->
+        <div
+          class="mt-7 flex items-center gap-3 rounded-2xl bg-slate-50 p-4 text-left"
+        >
+          <div
+            class="w-11 h-11 shrink-0 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold"
+          >
+            유
+          </div>
+
+          <div class="min-w-0">
+            <p class="font-bold text-slate-900">
+              유재석
+            </p>
+
+            <p class="text-sm text-slate-400 truncate">
+              jaeseok@puzzli.com
+            </p>
+          </div>
+        </div>
+
+        <div
+          class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-7"
+        >
+          <button
+            id="cancelButton"
+            type="button"
+            class="order-2 sm:order-1 w-full rounded-xl border border-slate-200 px-5 py-3 font-bold text-slate-600 hover:bg-slate-50 transition"
+          >
+            취소
+          </button>
+
+          <button
+            id="logoutButton"
+            type="button"
+            class="order-1 sm:order-2 w-full rounded-xl bg-primary px-5 py-3 font-bold text-white hover:bg-indigo-700 transition flex items-center justify-center gap-2"
+          >
+            <span id="logoutButtonText">
+              로그아웃
+            </span>
+
+            <span
+              id="logoutSpinner"
+              class="spinner hidden"
+            ></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 로그아웃 완료 화면 -->
+      <div
+        id="completeScreen"
+        class="screen"
+      >
+        <div
+          class="mx-auto w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center"
+        >
+          <svg
+            class="w-8 h-8"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M5 13l4 4L19 7"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+            ></path>
+          </svg>
+        </div>
+
+        <h1
+          class="mt-6 text-2xl md:text-3xl font-bold text-slate-900"
+        >
+          로그아웃되었습니다
+        </h1>
+
+        <p
+          class="mt-3 text-sm leading-6 text-slate-500"
+        >
+          PUZZLI를 이용해주셔서 감사합니다.<br>
+          다시 이용하려면 로그인해주세요.
+        </p>
+
+        <button
+          type="button"
+          onclick="window.location.href='index.html'"
+          class="mt-7 w-full rounded-xl bg-primary px-5 py-3 font-bold text-white hover:bg-indigo-700 transition"
+        >
+          홈으로 이동
+        </button>
+      </div>
+    </section>
+
+    <p
+      class="mt-6 text-center text-xs text-slate-400"
+    >
+      © 2026 PUZZLI. All rights reserved.
+    </p>
+  </main>
+
+  <script>
+    const confirmScreen =
+      document.getElementById(
+        'confirmScreen'
+      );
+
+    const completeScreen =
+      document.getElementById(
+        'completeScreen'
+      );
+
+    const logoutButton =
+      document.getElementById(
+        'logoutButton'
+      );
+
+    const logoutButtonText =
+      document.getElementById(
+        'logoutButtonText'
+      );
+
+    const logoutSpinner =
+      document.getElementById(
+        'logoutSpinner'
+      );
+
+    /* 취소 */
+    document
+      .getElementById(
+        'cancelButton'
+      )
+      .addEventListener(
+        'click',
+        function () {
+          if (
+            window.history.length > 1
+          ) {
+            window.history.back();
+          } else {
+            window.location.href =
+              'index.html';
+          }
+        }
+      );
+
+    /* 로그아웃 */
+    logoutButton.addEventListener(
+      'click',
+      function () {
+        logoutButton.disabled = true;
+
+        logoutButton.classList.add(
+          'opacity-70',
+          'cursor-not-allowed'
+        );
+
+        logoutButtonText.textContent =
+          '로그아웃 중';
+
+        logoutSpinner.classList.remove(
+          'hidden'
+        );
+
+        /*
+          로그인과 관련된 데이터만 삭제합니다.
+          일정 및 사용자 입력 데이터는 유지됩니다.
+        */
+        localStorage.removeItem(
+          'puzzliSession'
+        );
+
+        localStorage.removeItem(
+          'puzzliUser'
+        );
+
+        sessionStorage.removeItem(
+          'puzzliSession'
+        );
+
+        setTimeout(
+          function () {
+            confirmScreen.classList.remove(
+              'is-active'
+            );
+
+            completeScreen.classList.add(
+              'is-active'
+            );
+          },
+          800
+        );
+      }
+    );
+  </script>
+</body>
+</html>
