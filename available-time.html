@@ -148,7 +148,7 @@
 
       <a
         href="index.html"
-        class="flex items-center gap-3 p-3 rounded-xl bg-indigo-600 text-white"
+        class="flex items-center gap-3 p-3 rounded-xl text-slate-600 hover:bg-slate-100"
       >
         <svg
           class="w-5 h-5"
@@ -171,7 +171,7 @@
 
       <a
         href="view-schedule.html"
-        class="flex items-center gap-3 p-3 rounded-xl text-slate-600 hover:bg-slate-100"
+        class="flex items-center gap-3 p-3 rounded-xl bg-indigo-600 text-white"
       >
         <svg
           class="w-5 h-5"
@@ -190,26 +190,11 @@
         <span>일정</span>
       </a>
 
-      <a
-        href="team.html"
-        class="flex items-center gap-3 p-3 rounded-xl text-slate-600 hover:bg-slate-100"
-      >
-        <svg
-          class="w-5 h-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M15 7a3 3 0 11-6 0 3 3 0 016 0z"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-          ></path>
-        </svg>
-
-        <span>팀</span>
-      </a>
+      <!-- 팀 -->
+      <a class="flex items-center gap-3 p-3 text-gray-600 hover:bg-gray-100 rounded-lg" href="team.html">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span>팀</span>
+</a>
 
       <a
         href="Environment-setting.html"
@@ -638,9 +623,9 @@
             </a>
 
             <button
+              id="profileLogoutButton"
               type="button"
               class="w-full text-left rounded-xl px-3 py-2 text-sm text-slate-600 hover:bg-slate-50"
-              onclick="showToast('로그아웃 기능은 로그인 연동 후 사용할 수 있습니다.')"
             >
               로그아웃
             </button>
@@ -691,38 +676,49 @@
 
               <div class="flex items-center gap-3">
                 <span class="text-primary">▣</span>
-                <span>2026년 7월 13일–15일</span>
+                <span>2026년 7월 13일–17일</span>
               </div>
 
               <div class="flex items-center gap-3">
                 <span class="text-primary">●</span>
-                <span>참여자 4명</span>
+                <span>참여자 6명</span>
               </div>
             </div>
 
             <div class="mt-5 flex -space-x-2">
               <div
                 class="w-10 h-10 rounded-full border-2 border-white bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold"
+                title="유재석"
               >
-                김
+                유
               </div>
 
               <div
                 class="w-10 h-10 rounded-full border-2 border-white bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold"
+                title="양세형"
+              >
+                양
+              </div>
+
+              <div
+                class="w-10 h-10 rounded-full border-2 border-white bg-amber-100 text-amber-600 flex items-center justify-center font-bold"
+                title="이지은"
               >
                 이
               </div>
 
               <div
-                class="w-10 h-10 rounded-full border-2 border-white bg-amber-100 text-amber-600 flex items-center justify-center font-bold"
+                class="w-10 h-10 rounded-full border-2 border-white bg-blue-100 text-blue-600 flex items-center justify-center font-bold"
+                title="김남길"
               >
-                박
+                김
               </div>
 
               <div
                 class="w-10 h-10 rounded-full border-2 border-white bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold"
+                title="한소희, 최유리"
               >
-                +1
+                +2
               </div>
             </div>
           </section>
@@ -846,6 +842,78 @@
               </div>
             </div>
           </section>
+
+          <!-- 일정 조건 -->
+          <section
+            class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm"
+          >
+            <h3 class="text-lg font-bold text-slate-900">
+              일정 조건
+            </h3>
+
+            <p class="mt-1 text-sm text-slate-500">
+              참석이 어려운 조건이 있다면 선택해주세요.
+            </p>
+
+            <div class="mt-5 space-y-3">
+              <label
+                class="flex items-start gap-3 rounded-xl border border-slate-200 p-4 cursor-pointer hover:bg-slate-50"
+              >
+                <input
+                  id="avoidLunchAfter"
+                  type="checkbox"
+                  class="mt-0.5 w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary"
+                >
+
+                <div>
+                  <p class="text-sm font-bold text-slate-700">
+                    점심 직후 피하기
+                  </p>
+
+                  <p class="mt-1 text-xs text-slate-400">
+                    13:00 시간은 선택할 수 없게 표시됩니다.
+                  </p>
+                </div>
+              </label>
+
+              <div>
+                <label
+                  for="outsideWorkDay"
+                  class="block mb-2 text-sm font-bold text-slate-700"
+                >
+                  외근이 있는 요일
+                </label>
+
+                <select
+                  id="outsideWorkDay"
+                  class="w-full rounded-xl border-slate-200 text-sm focus:border-primary focus:ring-primary/20"
+                >
+                  <option value="">해당 없음</option>
+                  <option value="2026-07-13">월요일</option>
+                  <option value="2026-07-14">화요일</option>
+                  <option value="2026-07-15">수요일</option>
+                  <option value="2026-07-16">목요일</option>
+                  <option value="2026-07-17">금요일</option>
+                </select>
+              </div>
+
+              <div>
+                <label
+                  for="participantNote"
+                  class="block mb-2 text-sm font-bold text-slate-700"
+                >
+                  추가 요청
+                </label>
+
+                <textarea
+                  id="participantNote"
+                  rows="3"
+                  placeholder="예: 오후 2시 이후를 선호합니다."
+                  class="w-full resize-none rounded-xl border-slate-200 text-sm focus:border-primary focus:ring-primary/20"
+                ></textarea>
+              </div>
+            </div>
+          </section>
         </aside>
 
         <!-- =========================
@@ -928,7 +996,7 @@
 
               <!-- 날짜 헤더 -->
               <div
-                class="grid grid-cols-4 border-b border-slate-200 bg-slate-50"
+                class="grid grid-cols-6 border-b border-slate-200 bg-slate-50"
               >
                 <div
                   class="p-4 border-r border-slate-200"
@@ -958,13 +1026,37 @@
                   </p>
                 </div>
 
-                <div class="p-4 text-center">
+                <div
+                  class="p-4 text-center border-r border-slate-200"
+                >
                   <p class="text-xs font-bold text-slate-400">
                     7월 15일
                   </p>
 
                   <p class="mt-1 font-bold text-primary">
                     수요일
+                  </p>
+                </div>
+
+                <div
+                  class="p-4 text-center border-r border-slate-200"
+                >
+                  <p class="text-xs font-bold text-slate-400">
+                    7월 16일
+                  </p>
+
+                  <p class="mt-1 font-bold text-primary">
+                    목요일
+                  </p>
+                </div>
+
+                <div class="p-4 text-center">
+                  <p class="text-xs font-bold text-slate-400">
+                    7월 17일
+                  </p>
+
+                  <p class="mt-1 font-bold text-primary">
+                    금요일
                   </p>
                 </div>
               </div>
@@ -1139,6 +1231,14 @@
       {
         key: '2026-07-15',
         label: '7월 15일 수요일'
+      },
+      {
+        key: '2026-07-16',
+        label: '7월 16일 목요일'
+      },
+      {
+        key: '2026-07-17',
+        label: '7월 17일 금요일'
       }
     ];
 
@@ -1162,6 +1262,16 @@
       '2026-07-15|15:00'
     ]);
 
+    const conditionBusySlots =
+      new Set();
+
+    function isBusySlot(key) {
+      return (
+        busySlots.has(key) ||
+        conditionBusySlots.has(key)
+      );
+    }
+
     /* 다른 참석자 응답 정보 */
     const otherAvailability = {
       '2026-07-13|10:00': '참석자 3명 가능',
@@ -1174,6 +1284,46 @@
 
     /* 사용자가 선택한 시간 */
     const selectedSlots = new Map();
+
+    function applyScheduleConditions() {
+      conditionBusySlots.clear();
+
+      const avoidLunchAfter =
+        document.getElementById(
+          'avoidLunchAfter'
+        ).checked;
+
+      const outsideWorkDay =
+        document.getElementById(
+          'outsideWorkDay'
+        ).value;
+
+      if (avoidLunchAfter) {
+        dates.forEach(function (date) {
+          conditionBusySlots.add(
+            date.key + '|13:00'
+          );
+        });
+      }
+
+      if (outsideWorkDay) {
+        times.forEach(function (time) {
+          conditionBusySlots.add(
+            outsideWorkDay + '|' + time
+          );
+        });
+      }
+
+      [...selectedSlots.keys()]
+        .forEach(function (key) {
+          if (isBusySlot(key)) {
+            selectedSlots.delete(key);
+          }
+        });
+
+      renderGrid();
+      saveDraft();
+    }
 
     const timeGrid =
       document.getElementById('timeGrid');
@@ -1211,7 +1361,7 @@
           document.createElement('div');
 
         row.className =
-          'grid grid-cols-4 border-b border-slate-200 last:border-b-0';
+          'grid grid-cols-6 border-b border-slate-200 last:border-b-0';
 
         /* 시간 영역 */
         const timeCell =
@@ -1253,7 +1403,7 @@
             'slot-button w-full rounded-xl flex flex-col items-center justify-center gap-0.5 p-2';
 
           /* 선택 불가 시간 */
-          if (busySlots.has(key)) {
+          if (isBusySlot(key)) {
             button.disabled = true;
 
             button.innerHTML = `
@@ -1281,7 +1431,7 @@
           /* 다른 참여자 가능 정보 */
           if (
             otherAvailability[key] &&
-            !busySlots.has(key)
+            !isBusySlot(key)
           ) {
             const information =
               document.createElement('p');
@@ -1559,6 +1709,27 @@
             )
             .value,
 
+        avoidLunchAfter:
+          document
+            .getElementById(
+              'avoidLunchAfter'
+            )
+            .checked,
+
+        outsideWorkDay:
+          document
+            .getElementById(
+              'outsideWorkDay'
+            )
+            .value,
+
+        note:
+          document
+            .getElementById(
+              'participantNote'
+            )
+            .value,
+
         slots:
           Object.fromEntries(
             selectedSlots
@@ -1620,6 +1791,29 @@
           .value =
             draft.travelMinutes || '30';
 
+        document
+          .getElementById(
+            'avoidLunchAfter'
+          )
+          .checked =
+            Boolean(
+              draft.avoidLunchAfter
+            );
+
+        document
+          .getElementById(
+            'outsideWorkDay'
+          )
+          .value =
+            draft.outsideWorkDay || '';
+
+        document
+          .getElementById(
+            'participantNote'
+          )
+          .value =
+            draft.note || '';
+
         Object.entries(
           draft.slots || {}
         ).forEach(
@@ -1651,7 +1845,7 @@
     ========================== */
 
     loadDraft();
-    renderGrid();
+    applyScheduleConditions();
 
     /* 선택 초기화 */
     document
@@ -1691,6 +1885,34 @@
 
           saveDraft();
         }
+      );
+
+    /* 일정 조건 적용 */
+    document
+      .getElementById(
+        'avoidLunchAfter'
+      )
+      .addEventListener(
+        'change',
+        applyScheduleConditions
+      );
+
+    document
+      .getElementById(
+        'outsideWorkDay'
+      )
+      .addEventListener(
+        'change',
+        applyScheduleConditions
+      );
+
+    document
+      .getElementById(
+        'participantNote'
+      )
+      .addEventListener(
+        'input',
+        saveDraft
       );
 
     /* 입력 내용 자동 저장 */
@@ -1766,6 +1988,28 @@
               document
                 .getElementById(
                   'participantEmail'
+                )
+                .value
+                .trim(),
+
+            avoidLunchAfter:
+              document
+                .getElementById(
+                  'avoidLunchAfter'
+                )
+                .checked,
+
+            outsideWorkDay:
+              document
+                .getElementById(
+                  'outsideWorkDay'
+                )
+                .value,
+
+            note:
+              document
+                .getElementById(
+                  'participantNote'
                 )
                 .value
                 .trim(),

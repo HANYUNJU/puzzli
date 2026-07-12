@@ -549,11 +549,50 @@
           </svg>
         </button>
 
-        <div
-          class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 border border-indigo-200 flex items-center justify-center font-bold text-sm"
-        >
-          유
-        </div>
+        <!-- 프로필 -->
+<div
+  id="profileWrapper"
+  class="relative"
+>
+  <button
+    id="profileButton"
+    type="button"
+    class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 border border-indigo-200 flex items-center justify-center font-bold text-sm"
+    aria-label="프로필 메뉴 열기"
+  >
+    유
+  </button>
+
+  <div
+    id="profilePanel"
+    class="hidden absolute right-0 top-11 z-50 w-52 rounded-2xl border border-slate-200 bg-white p-3 shadow-xl"
+  >
+    <div class="px-3 py-2 border-b border-slate-100">
+      <p class="text-sm font-bold text-slate-900">
+        유재석
+      </p>
+
+      <p class="mt-1 text-xs text-slate-400">
+        jaeseokyoo@puzzli.io
+      </p>
+    </div>
+
+    <a
+      href="Environment-setting.html"
+      class="block rounded-xl px-3 py-2 mt-2 text-sm text-slate-600 hover:bg-slate-50"
+    >
+      환경 설정
+    </a>
+
+    <button
+      type="button"
+      onclick="window.location.href='logout.html'"
+      class="w-full text-left rounded-xl px-3 py-2 text-sm text-slate-600 hover:bg-slate-50"
+    >
+      로그아웃
+    </button>
+  </div>
+</div>
       </div>
     </header>
 
@@ -1259,74 +1298,74 @@
       }
     ];
 
-    let members = [
-      {
-        id: 1,
-        name: '전소민',
-        email: 'jeon@puzzli.io',
-        department: '디자인팀',
-        group: 'PUZZLI 리뉴얼',
-        status: '활성',
-        recent: '12분 전',
-        recentScore: 1,
-        color: 'bg-indigo-100 text-indigo-600'
-      },
-      {
-        id: 2,
-        name: '양세찬',
-        email: 'yang@puzzli.io',
-        department: '개발팀',
-        group: 'PUZZLI 리뉴얼',
-        status: '활성',
-        recent: '2시간 전',
-        recentScore: 2,
-        color: 'bg-blue-100 text-blue-600'
-      },
-      {
-        id: 3,
-        name: '송지효',
-        email: 'song@gmail.com',
-        department: '마케팅팀',
-        group: '마케팅 캠페인',
-        status: '초대 대기',
-        recent: '-',
-        recentScore: 999,
-        color: 'bg-amber-100 text-amber-600'
-      },
-      {
-        id: 4,
-        name: '지예은',
-        email: 'ji@puzzli.io',
-        department: '운영팀',
-        group: '주간 운영 회의',
-        status: '활성',
-        recent: '현재 접속',
-        recentScore: 0,
-        color: 'bg-emerald-100 text-emerald-600'
-      },
-      {
-        id: 5,
-        name: '하동훈',
-        email: 'haha@puzzli.io',
-        department: '기획팀',
-        group: '기획 회의',
-        status: '활성',
-        recent: '어제',
-        recentScore: 24,
-        color: 'bg-violet-100 text-violet-600'
-      },
-      {
-        id: 6,
-        name: '변우석',
-        email: 'wooo@puzzli.io',
-        department: '디자인팀',
-        group: '미지정',
-        status: '비활성',
-        recent: '30일 전',
-        recentScore: 720,
-        color: 'bg-slate-100 text-slate-500'
-      }
-    ];
+   let members = [
+  {
+    id: 1,
+    name: '유재석',
+    email: 'jaeseokyoo@puzzli.io',
+    department: '운영팀',
+    group: '주간 운영 회의',
+    status: '활성',
+    recent: '현재 접속',
+    recentScore: 0,
+    color: 'bg-indigo-100 text-indigo-600'
+  },
+  {
+    id: 2,
+    name: '양세형',
+    email: 'sehyung@puzzli.io',
+    department: '디자인팀',
+    group: 'PUZZLI 리뉴얼',
+    status: '활성',
+    recent: '12분 전',
+    recentScore: 1,
+    color: 'bg-emerald-100 text-emerald-600'
+  },
+  {
+    id: 3,
+    name: '이지은',
+    email: 'jieun@puzzli.io',
+    department: '마케팅팀',
+    group: '마케팅 캠페인',
+    status: '활성',
+    recent: '30분 전',
+    recentScore: 2,
+    color: 'bg-violet-100 text-violet-600'
+  },
+  {
+    id: 4,
+    name: '김남길',
+    email: 'namgil@puzzli.io',
+    department: '개발팀',
+    group: 'PUZZLI 리뉴얼',
+    status: '활성',
+    recent: '1시간 전',
+    recentScore: 3,
+    color: 'bg-blue-100 text-blue-600'
+  },
+  {
+    id: 5,
+    name: '한소희',
+    email: 'sohee@puzzli.io',
+    department: '디자인팀',
+    group: 'PUZZLI 리뉴얼',
+    status: '활성',
+    recent: '2시간 전',
+    recentScore: 4,
+    color: 'bg-pink-100 text-pink-600'
+  },
+  {
+    id: 6,
+    name: '최유리',
+    email: 'yuri@puzzli.io',
+    department: '운영팀',
+    group: '주간 운영 회의',
+    status: '활성',
+    recent: '어제',
+    recentScore: 24,
+    color: 'bg-amber-100 text-amber-600'
+  }
+];
 
     let activeFilter = 'all';
     let activeGroup = 'all';
@@ -2401,6 +2440,57 @@
   );
 
   updateNotificationCount();
+</script>
+<script>
+  const profileWrapper =
+    document.getElementById('profileWrapper');
+
+  const profileButton =
+    document.getElementById('profileButton');
+
+  const profilePanel =
+    document.getElementById('profilePanel');
+
+  profileButton.addEventListener(
+    'click',
+    function (event) {
+      event.stopPropagation();
+
+      notificationPanel.classList.add(
+        'hidden'
+      );
+
+      profilePanel.classList.toggle(
+        'hidden'
+      );
+    }
+  );
+
+  document.addEventListener(
+    'click',
+    function (event) {
+      if (
+        !profileWrapper.contains(
+          event.target
+        )
+      ) {
+        profilePanel.classList.add(
+          'hidden'
+        );
+      }
+    }
+  );
+
+  document.addEventListener(
+    'keydown',
+    function (event) {
+      if (event.key === 'Escape') {
+        profilePanel.classList.add(
+          'hidden'
+        );
+      }
+    }
+  );
 </script>
 </body>
 </html>
